@@ -5,7 +5,7 @@ import {View, Text, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, Item,
 class ToDoList extends React.Component {
 
     state = {
-        items: {},
+        items: [],
         singleitem:"",
     };
 
@@ -30,9 +30,8 @@ class ToDoList extends React.Component {
                 <View >
                     <SafeAreaView style={styles.container}>
                         <FlatList
-                       
-                            data={Object.keys(this.state.items)}
-                            renderItem={({ item, index }) => <Text style={styles.padTop}>{index} : {this.state.items[item].title} </Text>}
+                            data={this.state.items}
+                            renderItem={({ item, index }) => <Text>{index} : {item.title} </Text>}
                         />
                     </SafeAreaView>
                 </View>
@@ -88,15 +87,22 @@ class ToDoList extends React.Component {
             firebase.initializeApp(firebaseConfig);
         }
         
-        var additem = {"title":this.state.singleitem, "id":this.state.singleitem.length};
+        //var additem = {"title":this.state.singleitem, "id":this.state.items.length};
+        var itemarray = this.state.items.concat({"title":this.state.singleitem, "id":this.state.items.length});
+        this.setState({ items: itemarray })
+        firebase.database().ref('shoppinglist/' + listname).set({
+            list: itemarray
+        });
 
-        var ref = firebase.database().ref("shoppinglist/" + listname +"/list");
-        var p = ref.push();
-        p.set(additem);
-        var ref2 = firebase.database().ref("shoppinglist/" + listname);
-        console.log("In getData, looking for ", ref2);
+        //var ref = firebase.database().ref("shoppinglist/" + listname +"/list");
+        //var p = ref.push();
+        //p.set(additem);
+        var ref = firebase.database().ref("shoppinglist/" + listname);
 
-        ref2.on('value', function (snapshot) {
+        console.log("In getData, looking for ", ref);
+
+        // get support data from firebase
+        ref.on('value', function (snapshot) {
             console.log(snapshot);
             const newitem1 = snapshot.val().list;
             console.log(newitem1);
@@ -105,7 +111,7 @@ class ToDoList extends React.Component {
             console.info("API initialisation failed");
         });
 
-        console.log("end getData, looking for ", ref2);
+        console.log("end getData, looking for ", ref);
     }
 
     storeHighScore(listname, item) {
@@ -128,7 +134,7 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     padTop: {
-      padding: 10
+      padding: 20
     },
     textGlobal: {
       fontWeight: 'bold',

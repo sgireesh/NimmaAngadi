@@ -50,6 +50,7 @@ function StartYourOwnFamily(props) {
                     </TouchableOpacity>
                 </View>
             </View>
+
         </View>
     );
 }
