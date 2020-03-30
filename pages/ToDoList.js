@@ -1,23 +1,30 @@
 import React from 'react';
 import ListItem, { Separator } from './ListItem';
 import * as firebase from 'firebase';
-import {View, Text, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, Item, FlatList} from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList, AsyncStorage} from 'react-native';
 
 class ToDoList extends React.Component {
 
     state = {
         items: {},
         singleitem:"",
+        familyname:"",
     };
 
     componentDidMount(){
-        this.fbLoadList();
+        //var value = await AsyncStorage.getItem('familyname');
+        //this.setState({familyname:value});
+        
+        AsyncStorage.getItem("familyname").then((value) => {
+            alert(value);
+            this.setState({"familyname": value});
+        }).then ( res =>  {this.fbLoadList()});
     }
 
     render() {
         return (
             <View style={styles.container}>
+            <Text>Family Name : {this.state.familyname}</Text>
                 <TextInput
                     style={styles.TI}
                     placeholder="Peanut Butter"
@@ -50,7 +57,6 @@ class ToDoList extends React.Component {
     }
 
     fbAddToBoughtList = (uid, additem) => {
-        alert(additem.title);
         var listname = "5827capilano";
         // Initialize Firebase
         const firebaseConfig = {
@@ -115,6 +121,7 @@ class ToDoList extends React.Component {
     }
 
     fbLoadList = () => {
+ //       alert(this.state.familyname);
         var listname = "5827capilano";
         // Initialize Firebase
         const firebaseConfig = {
@@ -143,8 +150,13 @@ class ToDoList extends React.Component {
         });
         console.log("end getData, looking for ", ref);
     }
+
     fbAddToList = () => {
-        var listname = "5827capilano";
+        if(this.state.singleitem == null || this.state.singleitem == ""){
+            return null;
+        }
+//        var listname = "5827capilano";
+        var listname = this.state.familyname; 
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",

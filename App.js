@@ -1,11 +1,15 @@
 import * as React from 'react';
-import { Button, View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { Button, View, Text, StyleSheet, TouchableOpacity, AsyncStorage, TextInput} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import StartYourOwnFamily from './pages/StartYourOwnFamily';
 import ExistingFamilySignUp from './pages/ExistingFamilySignUp';
 import AddFamilyModal from './pages/AddFamilyModal';
 import ToDoList from './pages/ToDoList';
+
+var state = {
+  familyname:"",
+};
 
 function HomeScreen({ navigation }) {
   return (
@@ -41,7 +45,7 @@ function HomeScreen({ navigation }) {
         <View style={styles.container}>
           <TouchableOpacity style={styles.buttonStyle}
             title="Shopping List"
-            onPress={() => navigation.navigate('ToDoList')}
+            onPress={() => navigation.navigate('ShopList')}
           >
             <Text style={styles.textGlobal}>Shopping List</Text>
           </TouchableOpacity>
@@ -51,10 +55,71 @@ function HomeScreen({ navigation }) {
   );
 }
 
+
 function ToDoListScreen({ navigation }) {
-  return (
-    <ToDoList />
-  );
+       return (
+         <ToDoList />
+      );
+}  
+
+function ShopListScreen({ navigation }) {
+//  AsyncStorage.getAllKeys()
+//    .then(keys => AsyncStorage.multiRemove(keys))
+//    .then(() => alert('success'));
+
+
+    var familyname=null;
+    AsyncStorage.getItem("familyname").then((value) => {
+      alert(value);
+      familyname = value;
+    });
+
+     alert(familyname);
+
+    if(familyname) {
+      return (
+        <ToDoList />
+      );
+    } else {
+      return (
+        <View style={styles.padTop}>
+            <Text style={styles.textGlobal}>Family Name</Text>
+            <View style={styles.padTop}>
+            <TextInput
+                    style={styles.TI}
+                    placeholder="SubbammanaMane"
+                    onChangeText={(fn) => state.familyname=fn}
+                />
+            </View>
+            <View style={styles.padTop}>
+                <View style={styles.container}>
+                    <TouchableOpacity style={styles.buttonStyle}
+                        title="List of Items"
+                        //onPress={() => navigation.navigate('ToDoList')}
+
+                        onPress={() =>   {
+                          alert(state.familyname);
+                          AsyncStorage.setItem('familyname', state.familyname);
+                          navigation.navigate('ToDoList');
+                        }}
+                    >
+                        <Text style={styles.textGlobal}>Save</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+      );
+    } 
+    
+}
+
+saveFamily = ({navigation}) => {
+  if(state.familyname == null || state.familyname == ""){
+      return null;
+  }
+  alert(state.familyname);
+  AsyncStorage.setItem('familyname', state.familyname);
+  navigation.navigate('ToDoList');
 }
 
 function ExistingFamilySignUpScreen({ navigation }) {
@@ -74,6 +139,7 @@ function AddFamilyModalScreen({ navigation }) {
     <AddFamilyModal />
   );
 }
+
 const Stack = createStackNavigator();
 
 function App() {
@@ -103,6 +169,11 @@ function App() {
         <Stack.Screen
           name="ToDoList"
           component={ToDoListScreen}
+          options={{ title: 'Shopping List' }}
+        />
+        <Stack.Screen
+          name="ShopList"
+          component={ShopListScreen}
           options={{ title: 'Shopping List' }}
         />
       </Stack.Navigator>
