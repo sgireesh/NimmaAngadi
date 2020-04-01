@@ -1,16 +1,10 @@
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, AsyncStorage, TextInput} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import AddNewFamily from './pages/AddNewFamily';
-import ToDoList from './pages/ToDoList';
+import ToDoList from './ToDoList';
 
-
-class App extends Component {
-
+class AddNewFamily extends Component {
     constructor(props){
       super(props);
-      Stack = createStackNavigator();
       this.state = {
         fname:'',
         modalVisible: false,
@@ -35,44 +29,41 @@ class App extends Component {
       } catch (e){}
     }
 
-    HomeScreen({ navigation }) {
+    render () {
       return (
         <View style={styles.padTop}>
           <View style={styles.padTop}>
-            <Text style={styles.textGlobal}>Welcome! Choose an Option.</Text>
+            <Text style={styles.textGlobal}>New Family. Enter your Primary Mobile Number</Text>
           </View>
           <View style={styles.padTop}>
-            <View>
-              <TouchableOpacity
-                style={styles.buttonStyle}
-                title="Family"
-                onPress={() => navigation.navigate('AddNewFamily')}
-              >
-                <Text style={styles.textGlobal}>Individual or Family</Text>
-              </TouchableOpacity>
+            <TextInput
+                    style={styles.TI}
+                    placeholder="SubbammanaMane"
+                    onChangeText={(fn) => this.setState({familyname : fn})}
+                />
             </View>
-          </View>
-          <View style={styles.padTop}>
-            <View>
-              <TouchableOpacity style={styles.buttonStyle}
-                title="Store"
-                onPress={() => navigation.navigate('ShopList')}
-              >
-                <Text style={styles.textGlobal}>Store</Text>
-              </TouchableOpacity>
+            <View style={styles.padTop}>
+                <View style={styles.container}>
+                    <TouchableOpacity style={styles.buttonStyle}
+                        title="List of Items"
+                        onPress={ () =>  {
+                            AsyncStorage.setItem('familyname', this.state.familyname).then 
+                              (
+                                this.props.navigation.navigate('ToDoList')
+                              );
+                        }}
+                    >
+                        <Text style={styles.textGlobal}>Save</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-          </View>
         </View>
       );
     }
 
-    ToDoListScreen({ navigation }) {
-          return (
-            <ToDoList navigation={navigation}/>
-          );
-    }  
+     
 
-    ShopListScreen = ({ navigation }) => {
+    ShopListScreen = () => {
         console.log("91: fname" + this.state.fname);
         if(this.state.fname) {          
             return (
@@ -93,13 +84,11 @@ class App extends Component {
                 <View style={styles.container}>
                         <TouchableOpacity style={styles.buttonStyle}
                             title="List of Items"
-                            //onPress={() => navigation.navigate('ToDoList')}
-
                             onPress={() =>   {
                               console.log("114:  setitem " +this.state.fname);
                               AsyncStorage.setItem('familyname', this.state.fname).then 
                               (
-                                navigation.navigate('ToDoList')
+                                this.props.navigation.navigate('ToDoList')
                               );
                             }}
                         >
@@ -111,13 +100,7 @@ class App extends Component {
           );
         }    
     }
-
-    AddNewFamilyScreen({ navigation }) {
-      return (
-        <AddNewFamily navigation={navigation}/>
-      );
-    }
-    
+/*
     render() {
       return (
         <NavigationContainer>
@@ -128,9 +111,19 @@ class App extends Component {
               options={{ title: 'Nimma Angadi', headerTitleAlign: 'center' }}
             />
             <Stack.Screen
-              name="AddNewFamily"
-              component={this.AddNewFamilyScreen}
-              options={{ title: 'AddNewFamily' }}
+              name="ExistingFamilySignUp"
+              component={this.ExistingFamilySignUpScreen}
+              options={{ title: 'ExistingFamilySignUp' }}
+            />
+            <Stack.Screen
+              name="StartYourOwnFamily"
+              component={this.StartYourOwnFamilyScreen}
+              options={{ title: 'StartYourOwnFamily' }}
+            />
+            <Stack.Screen
+              name="AddFamilyModal"
+              component={this.AddFamilyModalScreen}
+              options={{ title: 'AddFamilyModal' }}
             />
             <Stack.Screen
               name="ToDoList"
@@ -146,6 +139,7 @@ class App extends Component {
         </NavigationContainer>
       );
     }
+    */
 }
 const styles = StyleSheet.create({
   padTop: {
@@ -169,4 +163,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default App;
+export default AddNewFamily;

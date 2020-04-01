@@ -16,7 +16,7 @@ class ToDoList extends React.Component {
         //this.setState({familyname:value});
         
         AsyncStorage.getItem("familyname").then((value) => {
-            alert(value);
+            console.log("todo list" + value);
             this.setState({"familyname": value});
         }).then ( res =>  {this.fbLoadList()});
     }
@@ -57,7 +57,7 @@ class ToDoList extends React.Component {
     }
 
     fbAddToBoughtList = (uid, additem) => {
-        var listname = "5827capilano";
+        var listname =this.state.familyname;
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -92,7 +92,7 @@ class ToDoList extends React.Component {
     }
 
     fbDelete = (uid, title) => {
-        var listname = "5827capilano";
+        var listname =this.state.familyname;
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -121,8 +121,8 @@ class ToDoList extends React.Component {
     }
 
     fbLoadList = () => {
- //       alert(this.state.familyname);
-        var listname = "5827capilano";
+        console.log("todo list" + this.state.familyname);
+        var listname =this.state.familyname;
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -155,7 +155,7 @@ class ToDoList extends React.Component {
         if(this.state.singleitem == null || this.state.singleitem == ""){
             return null;
         }
-//        var listname = "5827capilano";
+//        var listname =this.state.familyname;
         var listname = this.state.familyname; 
         // Initialize Firebase
         const firebaseConfig = {
