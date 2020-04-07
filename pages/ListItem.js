@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
 
 export const Separator = () => <View style={styles.separator} />;
 
-const LeftActions = (progress, dragX) => {
+const LeftActions = ({progress, dragX, textlabel}) => {
   const scale = dragX.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
@@ -56,13 +56,13 @@ const LeftActions = (progress, dragX) => {
   return (
     <View style={styles.leftAction}>
       <Animated.Text style={[styles.actionText, { transform: [{ scale }] }]}>
-        Bought Item
+        {textlabel}
       </Animated.Text>
     </View>
   );
 };
 
-const RightActions = ({ progress, dragX, onPress }) => {
+const RightActions = ({ progress, dragX, onPress, textlabel }) => {
   const scale = dragX.interpolate({
     inputRange: [-100, 0],
     outputRange: [1, 0],
@@ -72,23 +72,26 @@ const RightActions = ({ progress, dragX, onPress }) => {
     <TouchableOpacity onPress={onPress}>
       <View style={styles.rightAction}>
         <Animated.Text style={[styles.actionText, { transform: [{ scale }] }]}>
-          Delete
+          {textlabel}
         </Animated.Text>
       </View>
     </TouchableOpacity>
   );
 };
 
-const ListItem = ({ title, onSwipeFromLeft, onRightPress }) => (
+const ListItem = ({ title, onSwipeFromLeft, onRightPress, textlabelright, textlabelleft }) => (
   <Swipeable
-    renderLeftActions={LeftActions}
+    //renderLeftActions={LeftActions}
+    renderLeftActions={(progress, dragX) => (
+      <LeftActions progress={progress} dragX={dragX} textlabel={textlabelleft} />
+    )}
     onSwipeableLeftOpen={onSwipeFromLeft}
     renderRightActions={(progress, dragX) => (
-      <RightActions progress={progress} dragX={dragX} onPress={onRightPress} />
+      <RightActions progress={progress} dragX={dragX} onPress={onRightPress} textlabel={textlabelright} />
     )}
   >
     <View style={styles.container}>
-      <Text style={styles.text}>{"                      " + title}</Text>
+      <Text style={styles.text}>{"                 " + title}</Text>
     </View>
   </Swipeable>
 );

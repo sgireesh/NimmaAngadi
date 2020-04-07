@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import { Modal, Text, TouchableHighlight, View, StyleSheet} from 'react-native'
 class ModalExample extends Component {
-   state = {
-      modalVisible: false,
-   }
+    constructor(props) {
+        super(props);
+        this.state = {
+            fname: '',
+            modalVisible: false,
+            evalnow : false
+        };
+    }
+
    toggleModal(visible) {
       this.setState({ modalVisible: visible });
    }
@@ -18,7 +24,10 @@ class ModalExample extends Component {
                   <Text style = {styles.text}>Modal is open!</Text>
                   
                   <TouchableHighlight onPress = {() => {
-                     this.toggleModal(!this.state.modalVisible)}}>
+                     this.toggleModal(!this.state.modalVisible);
+                     this.props.navigation.navigate('ShoppingList');
+                    }
+                    }>
                      
                      <Text style = {styles.text}>Close Modal</Text>
                   </TouchableHighlight>
@@ -32,7 +41,7 @@ class ModalExample extends Component {
       )
    }
 }
-export default ModalExample
+export default ModalExample;
 
 const styles = StyleSheet.create ({
    container: {
@@ -50,4 +59,4 @@ const styles = StyleSheet.create ({
       color: '#3f2949',
       marginTop: 10
    }
-})
+});

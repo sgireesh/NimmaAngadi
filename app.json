@@ -9,9 +9,13 @@
       "android",
       "web"
     ],
+    "ios": {
+      "bundleIdentifier": "com.gireesh.NimmaAngadi",
+      "buildNumber": "1.0.0"
+    },
     "android": {
       "package": "com.gireesh.NimmaAngadi",
-      "versionCode": 2,
+      "versionCode": 3,
       "permissions": []
     },
     "version": "1.0.0",
@@ -27,9 +31,6 @@
     },
     "assetBundlePatterns": [
       "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    }
+    ]
   }
 }

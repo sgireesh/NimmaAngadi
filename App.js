@@ -1,152 +1,201 @@
-import React, {Component} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, AsyncStorage, TextInput} from 'react-native';
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AddNewFamily from './pages/AddNewFamily';
-import ToDoList from './pages/ToDoList';
-
+import AddNewStore from './pages/AddNewStore';
+import ShoppingList from './pages/ShoppingList';
+import PendingOrders from './pages/PendingOrders';
+import AddListToStore from './pages/AddListToStore';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isFamilyLoggedIn: false,
+      isStoreLoggedIn: false,
+      groupname: '',
+    };
+    Stack = createStackNavigator();
+    //this.clearAsyncData();
+    this.getAsyncData();
+  }
 
-    constructor(props){
-      super(props);
-      Stack = createStackNavigator();
-      this.state = {
-        fname:'',
-        modalVisible: false,
-      };
-    }
+  clearAsyncData() {
+    console.log("21: clearasyncdata");
+    AsyncStorage.getAllKeys()
+      .then(keys => AsyncStorage.multiRemove(keys))
+      .then(() => console.log("24 " + 'success'))
+      .then(() => this.setState({ isFamilyLoggedIn: false }))
+      .then(() => this.setState({ isStoreLoggedIn: false }))
+      .then(() => this.setState({ groupname: '' }));
+  }
 
-    componentDidMount() {
-      try{
-        AsyncStorage.getAllKeys()
-        .then(keys => AsyncStorage.multiRemove(keys))
-        .then(() => console.log("24 " + 'success'))
-        .then(() => this.setState({fname: ''}));
-        
-        AsyncStorage.getItem('familyname').then((value) => {
-            if(value){
-                this.setState({fname: value});
-                console.log("30 " + this.state.fname);
-            } else {
-              this.setState({fname: ''});
-            }
-        });
-      } catch (e){}
-    }
+  getAsyncData() {
+    AsyncStorage.getItem('groupname').then((value) => {
+      if (value) {
+        this.setState({ isFamilyLoggedIn: true });
+        this.setState({ groupname: value });
+        console.log("40 " + this.state.isFamilyLoggedIn);
+        console.log("41 " + value + " " + this.state.groupname);
+      } else {
+        this.setState({ isFamilyLoggedIn: false });
+      }
+    });
+    AsyncStorage.getItem('storename').then((value) => {
+      if (value) {
+        this.setState({ isStoreLoggedIn: true });
+        this.setState({ storename: value });
+        console.log("40 " + this.state.isStoreLoggedIn);
+        console.log("41 " + value + " " + this.state.storename);
+      } else {
+        this.setState({ isStoreLoggedIn: false });
+      }
+    });
+  }
 
-    HomeScreen({ navigation }) {
-      return (
+  componentDidMount() {
+  }
+
+  HomeScreen = ({ navigation }) => {
+    return (
+      <View style={styles.padTop}>
         <View style={styles.padTop}>
-          <View style={styles.padTop}>
-            <Text style={styles.textGlobal}>Welcome! Choose an Option.</Text>
-          </View>
-          <View style={styles.padTop}>
-            <View>
-              <TouchableOpacity
-                style={styles.buttonStyle}
-                title="Family"
-                onPress={() => navigation.navigate('AddNewFamily')}
-              >
-                <Text style={styles.textGlobal}>Individual or Family</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.padTop}>
-            <View>
-              <TouchableOpacity style={styles.buttonStyle}
-                title="Store"
-                onPress={() => navigation.navigate('ShopList')}
-              >
-                <Text style={styles.textGlobal}>Store</Text>
-              </TouchableOpacity>
-            </View>
+          <Text style={styles.textGlobal}>Welcome! Choose an Option.</Text>
+        </View>
+        <View style={styles.padTop}>
+          <View>
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              title="Family"
+              onPress={() => {
+                if (this.state.isFamilyLoggedIn === false) {
+                  navigation.navigate('AddNewFamily');
+                } else {
+                  navigation.navigate('ShoppingList', { myparam: 'group' })
+                }
+              }
+              }
+            >
+              <Text style={styles.textGlobal}>Individual or Group</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      );
-    }
-
-    ToDoListScreen({ navigation }) {
-          return (
-            <ToDoList navigation={navigation}/>
-          );
-    }  
-
-    ShopListScreen = ({ navigation }) => {
-        console.log("91: fname" + this.state.fname);
-        if(this.state.fname) {          
-            return (
-              <ToDoList />
-            );
-          } else { 
-          return (
-      <View >
-        <Text style={styles.textGlobal}>Your Primary Phone Number</Text>
-          <View style={styles.padTop}>
-          <TextInput
-                  style={styles.TI}
-                  placeholder="408-555-1212"
-                  onChangeText={(fn) => this.state.fname=fn}
-              />
+        <View style={styles.padTop}>
+          <View>
+            <TouchableOpacity style={styles.buttonStyle}
+              title="Store"
+              onPress={() => {
+                if (this.state.isStoreLoggedIn === false) {
+                  navigation.navigate('AddNewStore');
+                } else {
+                  navigation.navigate('PendingOrders');
+                }
+              }}
+            >
+              <Text style={styles.textGlobal}>Store</Text>
+            </TouchableOpacity>
           </View>
-                <View style={styles.padTop}>
-                <View style={styles.container}>
-                        <TouchableOpacity style={styles.buttonStyle}
-                            title="List of Items"
-                            //onPress={() => navigation.navigate('ToDoList')}
-
-                            onPress={() =>   {
-                              console.log("114:  setitem " +this.state.fname);
-                              AsyncStorage.setItem('familyname', this.state.fname).then 
-                              (
-                                navigation.navigate('ToDoList')
-                              );
-                            }}
-                        >
-                            <Text style={styles.textGlobal}>Save</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>                  
+        </View>
+        <View style={styles.padTop}>
+          <View>
+            <TouchableOpacity style={styles.buttonStyle}
+              title="Store"
+              onPress={() => {
+                this.clearAsyncData();
+                //navigation.navigate('Home');
+              }}
+            >
+              <Text style={styles.textGlobal}>Clear Local Cache</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-          );
-        }    
-    }
+    );
+  };
 
-    AddNewFamilyScreen({ navigation }) {
-      return (
-        <AddNewFamily navigation={navigation}/>
-      );
-    }
-    
-    render() {
-      return (
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Home"
-              component={this.HomeScreen}
-              options={{ title: 'Nimma Angadi', headerTitleAlign: 'center' }}
-            />
-            <Stack.Screen
-              name="AddNewFamily"
-              component={this.AddNewFamilyScreen}
-              options={{ title: 'AddNewFamily' }}
-            />
-            <Stack.Screen
-              name="ToDoList"
-              component={this.ToDoListScreen}
-              options={{ title: 'Shopping List' }}
-            />
-            <Stack.Screen
-              name="ShopList"
-              component={this.ShopListScreen}
-              options={{ title: 'Shopping List' }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      );
-    }
-}
+  ShoppingListScreen({ navigation, route }) {
+    return (
+      <ShoppingList navigation={navigation, route} />
+    );
+  }
+
+  AddListToStoreScreen({ navigation }) {
+    return (
+      <AddListToStore navigation={navigation} />
+    );
+  }
+
+  AddNewFamilyScreen = ({ navigation }) => {
+    return (
+      <AddNewFamily navigation={navigation} />
+    );
+  };
+
+  AddNewStoreScreen = ({ navigation }) => {
+    return (
+      <AddNewStore navigation={navigation} />
+    );
+  }
+
+  PendingOrdersScreen = ({ navigation }) => {
+    return (
+      <PendingOrders navigation={navigation} />
+    );
+  }
+
+  /*
+          {(this.state.isFamilyLoggedIn === false)
+            // If not logged in, the user will be shown this route
+            ? <Stack.Screen name="AddNewFamily" component={this.AddNewFamilyScreen} />
+            // When logged in, the user will be shown this route
+            : <Stack.Screen name="Home" component={this.HomeScreen} options={{title: this.state.familyname}}/>
+          }
+              */
+
+  render = () => {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={this.HomeScreen}
+            options={{ title: this.state.groupname, headerTitleAlign: 'center' }}
+          />
+          <Stack.Screen
+            name="AddNewFamily"
+            component={this.AddNewFamilyScreen}
+            options={{ title: 'Add New Group' }}
+          />
+          <Stack.Screen
+            name="ShoppingList"
+            component={this.ShoppingListScreen}
+            options={{
+              title: 'Shopping List : '.concat(this.state.groupname),
+              headerLeft: null
+            }}
+          />
+          <Stack.Screen
+            name="AddNewStore"
+            component={this.AddNewStoreScreen}
+            options={{ title: 'Add New Store' }}
+          />
+          <Stack.Screen
+            name="PendingOrders"
+            component={this.PendingOrdersScreen}
+            options={{ title: 'Pending Orders' }}
+          />
+          <Stack.Screen
+            name="AddListToStore"
+            component={this.AddListToStoreScreen}
+            options={{ title: 'Select Store from List' }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+};
+
 const styles = StyleSheet.create({
   padTop: {
     padding: 20
