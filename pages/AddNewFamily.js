@@ -10,9 +10,38 @@ class AddNewFamily extends Component {
         this.state = {
             groupname: '',
             groupphone: '',
-            evalnow: false
+            evalnow: false,
+            setflag1: false,
+            setflag2: false,
         };
         this.backButtonClick = this.backButtonClick.bind(this);
+    }
+
+    saveData = async () => {
+        try {
+            var groupname = this.state.groupname;
+            groupname = groupname.replace(/\s+/g, '').toLowerCase();
+            await AsyncStorage.setItem('groupname', groupname, (err) => {
+                if (!err) {
+                    this.setState({ setflag1: true });
+                }
+            });
+
+            await AsyncStorage.setItem('from', 'group', (err) => {
+                if (!err) {
+                    this.setState({ setflag2: true });
+                }
+            });
+            console.log("45: " + this.state.setflag1);
+            console.log("46: " + this.state.setflag2);
+
+            if (this.state.setflag1 && this.state.setflag2) {
+                this.fbAddNewGroup();
+                this.props.navigation.navigate('ShoppingList');
+            }
+        } catch (e) {
+            console.log("Error ", e);
+        }
     }
 
     backButtonClick() {
@@ -97,14 +126,8 @@ class AddNewFamily extends Component {
                             title="List of Items"
                             onPress={() => {
                                 //this.sendSMS();
-                                var groupname = this.state.groupname;
-                                groupname = groupname.replace(/\s+/g, '').toLowerCase();
-                                AsyncStorage.setItem('groupname', groupname).then(
-                                        () => {
-                                            this.fbAddNewGroup();
-                                            this.props.navigation.navigate('ShoppingList');
-                                        }
-                                    );
+                                console.log("140: save pressed");
+                                this.saveData();
                             }}
                         >
                             <Text style={styles.textGlobal}>Save</Text>

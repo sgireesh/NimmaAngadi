@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AddNewFamily from './pages/AddNewFamily';
 import AddNewStore from './pages/AddNewStore';
 import ShoppingList from './pages/ShoppingList';
+import BoughtList from './pages/BoughtList';
 import PendingOrders from './pages/PendingOrders';
 import AddListToStore from './pages/AddListToStore';
 
@@ -15,10 +16,11 @@ class App extends Component {
       isFamilyLoggedIn: false,
       isStoreLoggedIn: false,
       groupname: '',
+      setflag1:false,
     };
     Stack = createStackNavigator();
     //this.clearAsyncData();
-    this.getAsyncData();
+    this.getData();
   }
 
   clearAsyncData() {
@@ -29,6 +31,39 @@ class App extends Component {
       .then(() => this.setState({ isFamilyLoggedIn: false }))
       .then(() => this.setState({ isStoreLoggedIn: false }))
       .then(() => this.setState({ groupname: '' }));
+  }
+
+  getData = async () => {
+    try {
+      await AsyncStorage.getItem('groupname', (err, value) => {
+        if (!err && value != null) {
+          this.setState({ isFamilyLoggedIn: true });
+          this.setState({ groupname: value });
+          console.log("40 " + this.state.isFamilyLoggedIn);
+          console.log("41 " + value + " " + this.state.groupname);
+        } else {
+          this.setState({ isFamilyLoggedIn: false });
+        }
+      })
+    } catch (e) {
+      console.log("Error ", e);
+    }
+
+    try {
+      await AsyncStorage.getItem('storename', (err, value) => {
+        if (!err && value != null) {
+          this.setState({ isStoreLoggedIn: true });
+          this.setState({ storename: value });
+          console.log("40 " + this.state.isStoreLoggedIn);
+          console.log("41 " + value + " " + this.state.storename);
+        } else {
+          this.setState({ isStoreLoggedIn: false });
+        }
+      })
+    } catch (e) {
+      console.log("Error ", e);
+    }
+    console.log("65 app.js" + this.state.isFamilyLoggedIn);
   }
 
   getAsyncData() {
@@ -57,6 +92,24 @@ class App extends Component {
   componentDidMount() {
   }
 
+  saveData = async ({navigation}) => {
+    try {
+        await AsyncStorage.setItem('from', 'group', (err) => {
+            if (!err) {
+                this.setState({ setflag1: true });
+            }
+        });
+        console.log("102: " + this.state.setflag1);
+
+        if (this.state.setflag1) {
+          navigation.navigate('ShoppingList');
+        }
+    } catch (e) {
+        console.log("Error ", e);
+    }
+}
+
+
   HomeScreen = ({ navigation }) => {
     return (
       <View style={styles.padTop}>
@@ -69,10 +122,11 @@ class App extends Component {
               style={styles.buttonStyle}
               title="Family"
               onPress={() => {
+                console.log("105 " + this.state.isFamilyLoggedIn);
                 if (this.state.isFamilyLoggedIn === false) {
                   navigation.navigate('AddNewFamily');
                 } else {
-                  navigation.navigate('ShoppingList', { myparam: 'group' })
+                  this.saveData({navigation});
                 }
               }
               }
@@ -114,9 +168,15 @@ class App extends Component {
     );
   };
 
-  ShoppingListScreen({ navigation, route }) {
+  BoughtListScreen = ({ navigation }) => {
     return (
-      <ShoppingList navigation={navigation, route} />
+      <BoughtList navigation={navigation} />
+    );
+  }
+
+  ShoppingListScreen = ({ navigation }) => {
+    return (
+      <ShoppingList navigation={navigation} />
     );
   }
 
@@ -173,6 +233,13 @@ class App extends Component {
             options={{
               title: 'Shopping List : '.concat(this.state.groupname),
               headerLeft: null
+            }}
+          />
+          <Stack.Screen
+            name="BoughtList"
+            component={this.BoughtListScreen}
+            options={{
+              title: 'Bought List : '.concat(this.state.groupname)
             }}
           />
           <Stack.Screen

@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList, AsyncSto
 
 
 class ShoppingList extends React.Component {
+    _isMounted = false;
 
     constructor(props) {
         super(props);
@@ -15,24 +16,28 @@ class ShoppingList extends React.Component {
             quantity: "1",
             storename: "",
             storephone: "",
+            from:""
         };
         this.getAsyncData();
     }
 
     getAsyncData() {
         console.log(this.state.quantity);
+        AsyncStorage.getItem("from").then((value) => {
+            console.log("shoppinglist: 26: from: " + value);
+            this.setState({ "from": value });
+        });
         AsyncStorage.getItem("groupname").then((value) => {
             console.log("shoppinglist: 23: groupname: " + value);
             this.setState({ "groupname": value });
         }).then(res => { this.fbLoadList() });
     }
 
-    getnavdata = () => {
-        const state = this.props.navigation.params;
-        console.log("31: " + state.myparam);
-    }
     componentDidMount() {
-        this.getnavdata();
+        this._isMounted = true;
+    }
+    componentWillMount() {
+        this._isMounted = false;
     }
 
     getPickerElements() {
@@ -47,7 +52,7 @@ class ShoppingList extends React.Component {
     render = () => {
         return (
             <View style={styles.container}>
-                {(this.props.navigation.params.myparam === 'store')
+                {(this.state.from === 'store')
                     ? <View style={styles.padTop}>
                         <Text>inside store pick up </Text>
                     </View>
@@ -81,19 +86,7 @@ class ShoppingList extends React.Component {
                     </View>
 
                 }
-                {(this.state.storename)
-                    ? <View style={styles.padTop}>
-                        <Text>Store Pickup {this.state.storename} </Text>
-                    </View>
-                    : <View style={styles.padTop}>
-                        <TouchableOpacity style={styles.padTop}
-                            style={styles.buttonStyle}
-                            onPress={this.addListToStore}
-                        >
-                            <Text>Store Pickup</Text>
-                        </TouchableOpacity>
-                    </View>
-                }
+
                 <View style={styles.container}>
                     <FlatList
                         data={Object.keys(this.state.items)}
@@ -109,6 +102,32 @@ class ShoppingList extends React.Component {
                         keyExtractor={item => item}
                         ItemSeparatorComponent={() => <Separator />}
                     />
+                </View>
+                <View style={styles.padTop}>
+                    {(this.state.storename)
+                        ? <View >
+                            <Text>Store Pickup with</Text>
+                            <Text>{this.state.storename}</Text>
+                        </View>
+                        : <View style={styles.container}>
+                            <TouchableOpacity
+                                style={styles.buttonStyle}
+                                onPress={() => {this.addListToStore()}}
+                            >
+                                <Text>Store Pickup</Text>
+                            </TouchableOpacity>
+                        </View>
+                    }
+                    <View style={styles.container}>
+                        <TouchableOpacity
+                            style={styles.buttonStyle}
+                            onPress={() => {
+                                    this.props.navigation.navigate('BoughtList');
+                                }}
+                        >
+                            <Text>Bought List</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         );
@@ -138,13 +157,16 @@ class ShoppingList extends React.Component {
         var itempath = uid;
         itempath = refpath.concat(itempath.replace(/\s+/g, '').toLowerCase());
         console.log("49: " + itempath);
-        var ref = firebase.database().ref(itempath);
-        ref.update({ "title": title, "id": id });
-
-        var ref = firebase.database().ref("shoppinglist/" + listname + "/list");
-        ref.child(uid).remove();
+        
+        firebase.database().ref(itempath).update({ "title": title, "id": id })
+        .then((data) => { console.log('success', data)})
+        .catch((error)=>{console.log('error', error)});
+        
+        firebase.database().ref("shoppinglist/" + listname + "/list").child(uid).remove()
+        .then((data) => { console.log('success', data)})
+        .catch((error)=>{console.log('error', error)});        
     }
-
+/*
     fbDelete = (uid, title) => {
         var listname = this.state.groupname;
         // Initialize Firebase
@@ -176,9 +198,9 @@ class ShoppingList extends React.Component {
             console.info("API initialisation failed");
         });
     }
-
+*/
     fbLoadList = () => {
-        console.log("todo list" + this.state.groupname);
+        console.log("200 : todo list" + this.state.groupname);
         var listname = this.state.groupname;
         // Initialize Firebase
         const firebaseConfig = {
@@ -197,22 +219,27 @@ class ShoppingList extends React.Component {
         var ref = firebase.database().ref("shoppinglist/" + listname);
         ref.on('value', function (snapshot) {
             if (snapshot.val() != null) {
-                //console.log(snapshot);
+                console.log("217 " + snapshot);
                 const newitem1 = snapshot.val().list;
-                //console.log(newitem1);
+                console.log(":221 " +newitem1);
                 this.setState({ items: newitem1 })
                 const newitem2 = snapshot.val().store;
                 if (newitem2) {
                     this.setState({ storename: newitem2.storename });
                     this.setState({ storephone: newitem2.storephone });
                 }
+            } else {
+                this.setState({items: {}});
+                console.log("228: list is empty");
             }
         }.bind(this), function () {
             console.info("API initialization failed");
         });
         console.log("end getData, looking for ", ref);
     }
-
+    showBoughtList = () => {
+        console.log("227 showboughtlist");
+    }
     fbAddToList = () => {
         if (this.state.singleitem == null || this.state.singleitem == "") {
             return null;
@@ -238,6 +265,7 @@ class ShoppingList extends React.Component {
         var ref = firebase.database().ref(itempath);
         ref.update({ "title": this.state.singleitem.concat(" quantity: ", this.state.quantity), "id": this.state.singleitem.length });
 
+        this.setState({ singleitem: '' });
         var ref2 = firebase.database().ref("shoppinglist/" + listname);
         console.log("In getData, looking for ", ref2);
 
@@ -271,10 +299,9 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     buttonStyle: {
-        flex: 1,
         justifyContent: 'center', //Centered vertically
         alignItems: 'center', // Centered horizontally
-        height: 60,
+        height: 50,
         backgroundColor: 'lightgray',
         borderRadius: 15,
         borderWidth: 1,

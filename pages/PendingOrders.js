@@ -11,6 +11,8 @@ class PendingOrders extends React.Component {
             items: {},
             singleitem: "",
             storename: "",
+            setflag1:false,
+            setflag2:false,
         };
         this.getAsyncData();
     }
@@ -145,13 +147,44 @@ class PendingOrders extends React.Component {
         });
     }
 
+    
+    startFulfill = async (uid, groupname) => {
+        try {
+            groupname = groupname.replace(/\s+/g, '').toLowerCase();
+            await AsyncStorage.setItem('groupname', groupname, (err) => {
+                if (!err) {
+                    this.setState({ setflag1: true });
+                }
+            });
+
+            await AsyncStorage.setItem('from', 'group', (err) => {
+                if (!err) {
+                    this.setState({ setflag2: true });
+                }
+            });
+            console.log("165: " + this.state.setflag1);
+            console.log("166: " + this.state.setflag2);
+
+            if (this.state.setflag1 && this.state.setflag2) {
+                this.props.navigation.navigate('ShoppingList');
+            }
+        } catch (e) {
+            console.log("Error ", e);
+        }
+    }
+/*
     startFulfill = (uid, groupname) => {
         AsyncStorage.setItem('groupname', groupname).then(
             () => {
-                this.props.navigation.navigate('ShoppingList', {myparam:'store'});
+                AsyncStorage.setItem('from', 'group').then(
+                    () => {
+                      this.props.navigation.navigate('ShoppingList');
+                    }
+                  );
             }
         );
     }
+    */
 }
 
 const styles = StyleSheet.create({

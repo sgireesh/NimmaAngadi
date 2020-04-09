@@ -15,6 +15,23 @@ class AddListToStore extends Component {
         };
     }
 
+    saveData = async () => {
+        try {
+            await AsyncStorage.setItem('from', 'group', (err) => {
+                if (!err) {
+                    this.setState({ setflag1: true });
+                }
+            });
+            console.log("102: " + this.state.setflag1);
+    
+            if (this.state.setflag1) {
+              this.props.navigation.navigate('ShoppingList');
+            }
+        } catch (e) {
+            console.log("Error ", e);
+        }
+    }
+    
     getAsyncData() {
         AsyncStorage.getItem('groupname').then((value) => {
             if (value) {
@@ -92,8 +109,7 @@ class AddListToStore extends Component {
         console.log("AddListToStore: 92: " + storepath);
         var ref = firebase.database().ref(storepath);
         ref.update({ "storename": storename, "storephone": storephone });
-
-        this.props.navigation.navigate('ShoppingList');
+        this.saveData();
     }
     
     componentDidMount() {
