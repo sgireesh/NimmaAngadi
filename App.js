@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage, } from 'react-native';
+import { NavigationContainer, NavigationEvents } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AddNewFamily from './pages/AddNewFamily';
 import AddNewStore from './pages/AddNewStore';
@@ -8,6 +8,7 @@ import ShoppingList from './pages/ShoppingList';
 import BoughtList from './pages/BoughtList';
 import PendingOrders from './pages/PendingOrders';
 import AddListToStore from './pages/AddListToStore';
+import NotifyCustomer from './pages/NotifyCustomer';
 
 class App extends Component {
   constructor(props) {
@@ -16,7 +17,7 @@ class App extends Component {
       isFamilyLoggedIn: false,
       isStoreLoggedIn: false,
       groupname: '',
-      setflag1:false,
+      setflag1: false,
     };
     Stack = createStackNavigator();
     //this.clearAsyncData();
@@ -32,6 +33,84 @@ class App extends Component {
       .then(() => this.setState({ isStoreLoggedIn: false }))
       .then(() => this.setState({ groupname: '' }));
   }
+
+  setNewFamily = async ({navigation}) => {
+    try {
+      await AsyncStorage.getItem('groupname', (err, value) => {
+        if (!err && value != null) {
+          this.setState({ isFamilyLoggedIn: true });
+          this.setState({ groupname: value });
+          console.log("40 " + this.state.isFamilyLoggedIn);
+          console.log("41 " + value + " " + this.state.groupname);
+        } else {
+          this.setState({ isFamilyLoggedIn: false });
+        }
+      })
+    } catch (e) {
+      console.log("Error ", e);
+    }
+
+    try {
+      await AsyncStorage.getItem('storename', (err, value) => {
+        if (!err && value != null) {
+          this.setState({ isStoreLoggedIn: true });
+          this.setState({ storename: value });
+          console.log("40 " + this.state.isStoreLoggedIn);
+          console.log("41 " + value + " " + this.state.storename);
+        } else {
+          this.setState({ isStoreLoggedIn: false });
+        }
+      })
+    } catch (e) {
+      console.log("Error ", e);
+    }
+    console.log("65 app.js" + this.state.isFamilyLoggedIn);
+    if(this.state.isFamilyLoggedIn) {
+      navigation.navigate('ShoppingList');
+    } else {
+    navigation.navigate('AddNewFamily');
+    }
+  }
+
+
+  setNewStore = async ({navigation}) => {
+    try {
+      await AsyncStorage.getItem('groupname', (err, value) => {
+        if (!err && value != null) {
+          this.setState({ isFamilyLoggedIn: true });
+          this.setState({ groupname: value });
+          console.log("40 " + this.state.isFamilyLoggedIn);
+          console.log("41 " + value + " " + this.state.groupname);
+        } else {
+          this.setState({ isFamilyLoggedIn: false });
+        }
+      })
+    } catch (e) {
+      console.log("Error ", e);
+    }
+
+    try {
+      await AsyncStorage.getItem('storename', (err, value) => {
+        if (!err && value != null) {
+          this.setState({ isStoreLoggedIn: true });
+          this.setState({ storename: value });
+          console.log("40 " + this.state.isStoreLoggedIn);
+          console.log("41 " + value + " " + this.state.storename);
+        } else {
+          this.setState({ isStoreLoggedIn: false });
+        }
+      })
+    } catch (e) {
+      console.log("Error ", e);
+    }
+    console.log("106 app.js" + this.state.isStoreLoggedIn);
+    if(this.state.isStoreLoggedIn) {
+      navigation.navigate('PendingOrders');
+    } else {
+    navigation.navigate('AddNewStore');
+    }
+  }
+
 
   getData = async () => {
     try {
@@ -90,25 +169,26 @@ class App extends Component {
   }
 
   componentDidMount() {
+
   }
-
-  saveData = async ({navigation}) => {
+  componentWillUnmount() {
+  }
+  saveData = async ({ navigation }) => {
     try {
-        await AsyncStorage.setItem('from', 'group', (err) => {
-            if (!err) {
-                this.setState({ setflag1: true });
-            }
-        });
-        console.log("102: " + this.state.setflag1);
-
-        if (this.state.setflag1) {
-          navigation.navigate('ShoppingList');
+      await AsyncStorage.setItem('from', 'group', (err) => {
+        if (!err) {
+          this.setState({ setflag1: true });
         }
-    } catch (e) {
-        console.log("Error ", e);
-    }
-}
+      });
+      console.log("102: " + this.state.setflag1);
 
+      if (this.state.setflag1) {
+        navigation.navigate('ShoppingList');
+      }
+    } catch (e) {
+      console.log("Error ", e);
+    }
+  }
 
   HomeScreen = ({ navigation }) => {
     return (
@@ -124,14 +204,14 @@ class App extends Component {
               onPress={() => {
                 console.log("105 " + this.state.isFamilyLoggedIn);
                 if (this.state.isFamilyLoggedIn === false) {
-                  navigation.navigate('AddNewFamily');
+                  this.setNewFamily({ navigation });
                 } else {
-                  this.saveData({navigation});
+                  this.saveData({ navigation });
                 }
               }
               }
             >
-              <Text style={styles.textGlobal}>Individual or Group</Text>
+              <Text style={styles.textGlobal}>Your List</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -141,13 +221,13 @@ class App extends Component {
               title="Store"
               onPress={() => {
                 if (this.state.isStoreLoggedIn === false) {
-                  navigation.navigate('AddNewStore');
+                  this.setNewStore({navigation});
                 } else {
                   navigation.navigate('PendingOrders');
                 }
               }}
             >
-              <Text style={styles.textGlobal}>Store</Text>
+              <Text style={styles.textGlobal}>Your Store</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -204,6 +284,12 @@ class App extends Component {
     );
   }
 
+  NotifyCustomerScreen = ({ navigation }) => {
+    return (
+      <NotifyCustomer navigation={navigation} />
+    );
+  }
+
   /*
           {(this.state.isFamilyLoggedIn === false)
             // If not logged in, the user will be shown this route
@@ -230,9 +316,9 @@ class App extends Component {
           <Stack.Screen
             name="ShoppingList"
             component={this.ShoppingListScreen}
+
             options={{
-              title: 'Shopping List : '.concat(this.state.groupname),
-              headerLeft: null
+              title: 'List : '.concat(this.state.groupname)
             }}
           />
           <Stack.Screen
@@ -255,7 +341,12 @@ class App extends Component {
           <Stack.Screen
             name="AddListToStore"
             component={this.AddListToStoreScreen}
-            options={{ title: 'Select Store from List' }}
+            options={{ title: 'Available Stores' }}
+          />
+          <Stack.Screen
+            name="NotifyCustomer"
+            component={this.NotifyCustomerScreen}
+            options={{ title: 'Notify Customer' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

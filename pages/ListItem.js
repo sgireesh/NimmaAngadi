@@ -7,18 +7,20 @@ import {
   Animated,
   TouchableOpacity,
 } from 'react-native';
-//import { GestureHandler } from 'react-native-gesture-handler';//'expo';
-//const { Swipeable } = GestureHandler;
+import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
     backgroundColor: '#fff',
     paddingHorizontal: 10,
     paddingVertical: 20,
   },
   text: {
     color: 'black',
-    fontSize: 15,
+    fontSize: 20,
     textAlign:'left'
   },
   separator: {
@@ -91,7 +93,9 @@ const ListItem = ({ title, onSwipeFromLeft, onRightPress, textlabelright, textla
     )}
   >
     <View style={styles.container}>
-      <Text style={styles.text}>{"                 " + title}</Text>
+    <MCIcon style={styles.MCIcon} name="gesture-swipe-horizontal" size={35} color="#EDB760" />
+    <Text style={styles.text}>{"         " + title}</Text>
+
     </View>
   </Swipeable>
 );

@@ -31,7 +31,7 @@ class AddListToStore extends Component {
             console.log("Error ", e);
         }
     }
-    
+
     getAsyncData() {
         AsyncStorage.getItem('groupname').then((value) => {
             if (value) {
@@ -107,7 +107,7 @@ class AddListToStore extends Component {
         //update list with the assigned store.
         storepath = "shoppinglist/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), "/store");
         console.log("AddListToStore: 92: " + storepath);
-        var ref = firebase.database().ref(storepath);
+        ref = firebase.database().ref(storepath);
         ref.update({ "storename": storename, "storephone": storephone });
         this.saveData();
     }
@@ -121,7 +121,7 @@ class AddListToStore extends Component {
         return (
             <View style={styles.padTop}>
                 <View style={styles.padTop}>
-                    <Text style={styles.textGlobal}>Store for Pickup or Delivery</Text>
+                    <Text style={styles.textGlobal}>Share your shopping list with:</Text>
                 </View>
                 <View style={styles.container}>
                     <FlatList 
@@ -130,8 +130,8 @@ class AddListToStore extends Component {
                         <ListItem
                             title={this.state.items[item].storename}
                             onSwipeFromLeft={() => {this.fbAddToPendingOrders(item, this.state.items[item].storename, this.state.items[item].storephone)}}
-                            onRightPress={() => {this.fbDelete(item, this.state.items[item].storename)}}
-                            textlabelright="delete store"
+                            onRightPress={() => {console.log("right button pressed")}}
+                            textlabelright=""
                             textlabelleft="select store"
                         />
                         )}

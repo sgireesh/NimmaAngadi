@@ -21,6 +21,12 @@ class AddNewFamily extends Component {
         try {
             var groupname = this.state.groupname;
             groupname = groupname.replace(/\s+/g, '').toLowerCase();
+
+            var groupphone = this.state.groupphone;
+            groupphone = groupphone.replace(/[^\d]/g, ''); 
+
+            groupname = groupname.concat(groupphone);
+
             await AsyncStorage.setItem('groupname', groupname, (err) => {
                 if (!err) {
                     this.setState({ setflag1: true });
@@ -34,6 +40,7 @@ class AddNewFamily extends Component {
             });
             console.log("45: " + this.state.setflag1);
             console.log("46: " + this.state.setflag2);
+
 
             if (this.state.setflag1 && this.state.setflag2) {
                 this.fbAddNewGroup();
@@ -86,7 +93,9 @@ class AddNewFamily extends Component {
             }
             // Don't add if exists.
             var grouppath = this.state.groupname;
-            grouppath = "groups/".concat(grouppath.replace(/\s+/g, '').toLowerCase());
+            var groupphone = this.state.groupphone;
+            groupphone = groupphone.replace(/[^\d]/g, ''); 
+            grouppath = "groups/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), groupphone);
 
             console.log("63: " + grouppath);
 
@@ -115,7 +124,7 @@ class AddNewFamily extends Component {
                 <View style={styles.padTop}>
                     <TextInput
                         style={styles.TI}
-                        placeholder="SubbammanaMane"
+                        placeholder="444-989-0989"
                         keyboardType={'numeric'}
                         onChangeText={(fn) => this.setState({ groupphone: fn })}
                     />

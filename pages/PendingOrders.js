@@ -1,7 +1,8 @@
 import React from 'react';
 import ListItem, { Separator } from './ListItem';
 import * as firebase from 'firebase';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList, AsyncStorage } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, AsyncStorage } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
 
 class PendingOrders extends React.Component {
@@ -15,6 +16,18 @@ class PendingOrders extends React.Component {
             setflag2:false,
         };
         this.getAsyncData();
+
+        this.props.navigation.setOptions({
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('Home')}
+                >
+                    <Icon style={{ paddingLeft: 10 }} name="arrow-left" size={26} color="black" />
+                </TouchableOpacity>
+
+            ),
+        });
+
     }
 
     getAsyncData() {
@@ -157,7 +170,7 @@ class PendingOrders extends React.Component {
                 }
             });
 
-            await AsyncStorage.setItem('from', 'group', (err) => {
+            await AsyncStorage.setItem('from', 'store', (err) => {
                 if (!err) {
                     this.setState({ setflag2: true });
                 }
