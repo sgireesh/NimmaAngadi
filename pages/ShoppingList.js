@@ -261,7 +261,7 @@ class ShoppingList extends React.Component {
             this.setState({ groupphone: snapshot.val() });
         });
 
-        ref = firebase.database().ref("shoppinglist/" + listname + "/list").orderByChild('id');
+        ref = firebase.database().ref("shoppinglist/" + listname ); //+ "/list").orderByChild('id');
 
 
         ref.on('value', function (snapshot) {
@@ -274,7 +274,7 @@ class ShoppingList extends React.Component {
             */
             if (snapshot.val() != null) {
                 //                console.log("217 " + snapshot);
-                const newitem1 = snapshot.val();//.list;
+                const newitem1 = snapshot.val().list;
                 //                console.log(":221 " + newitem1);
                 if (newitem1) {
                     this.setState({ items: newitem1 })

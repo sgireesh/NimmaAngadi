@@ -150,7 +150,7 @@ class PendingOrders extends React.Component {
         var ref = firebase.database().ref("pendingorders/" + listname);
         ref.on('value', function (snapshot) {
             if (snapshot.val() != null) {
-                console.log(snapshot);
+                console.log("153: " + snapshot);
                 const newitem1 = snapshot.val();
                 console.log(newitem1);
                 this.setState({ items: newitem1 })
@@ -162,9 +162,10 @@ class PendingOrders extends React.Component {
 
     
     startFulfill = async (uid, groupname) => {
+        console.log("165 :" + uid);
         try {
-            groupname = groupname.replace(/\s+/g, '').toLowerCase();
-            await AsyncStorage.setItem('groupname', groupname, (err) => {
+            //groupname = groupname.replace(/\s+/g, '').toLowerCase();
+            await AsyncStorage.setItem('groupname', uid, (err) => {
                 if (!err) {
                     this.setState({ setflag1: true });
                 }

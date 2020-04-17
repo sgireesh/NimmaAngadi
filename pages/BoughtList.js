@@ -52,7 +52,7 @@ class BoughtList extends React.Component {
                                 onSwipeFromLeft={() => { this.fbAddToShoppingList(item, this.state.items[item].title, this.state.items[item].id) }}
                                 onRightPress={() => { this.fbDelete(item, this.state.items[item].title) }}
                                 textlabelright="delete"
-                                textlabelleft="add"
+                                textlabelleft="buy again"
                             />
                         )}
                         keyExtractor={item => item}

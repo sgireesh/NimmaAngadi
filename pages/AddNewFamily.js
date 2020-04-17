@@ -13,6 +13,8 @@ class AddNewFamily extends Component {
             evalnow: false,
             setflag1: false,
             setflag2: false,
+            isPhoneValid: false,
+            isGroupNameValid: false,
         };
         this.backButtonClick = this.backButtonClick.bind(this);
     }
@@ -23,7 +25,7 @@ class AddNewFamily extends Component {
             groupname = groupname.replace(/\s+/g, '').toLowerCase();
 
             var groupphone = this.state.groupphone;
-            groupphone = groupphone.replace(/[^\d]/g, ''); 
+            groupphone = groupphone.replace(/[^\d]/g, '');
 
             groupname = groupname.concat(groupphone);
 
@@ -94,7 +96,7 @@ class AddNewFamily extends Component {
             // Don't add if exists.
             var grouppath = this.state.groupname;
             var groupphone = this.state.groupphone;
-            groupphone = groupphone.replace(/[^\d]/g, ''); 
+            groupphone = groupphone.replace(/[^\d]/g, '');
             grouppath = "groups/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), groupphone);
 
             console.log("63: " + grouppath);
@@ -105,6 +107,24 @@ class AddNewFamily extends Component {
         }
     }
 
+    validategroupname = (groupname) => {
+        if(groupname.length > 8 && groupname.length < 20) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    validatePhone = (phnumber) => {
+        console.log("111: hello");
+        const reg = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        if (reg.test(phnumber) === false) {
+            console.log("113: false");
+            return false;
+        } else {
+            console.log("117: true");
+            return true;
+        }
+    }
     render() {
         return (
             <View style={styles.padTop}>
@@ -115,8 +135,9 @@ class AddNewFamily extends Component {
                     <TextInput
                         style={styles.TI}
                         placeholder="Subbammana Mane"
-                        onChangeText={(fn) => this.setState({ groupname: fn })}
+                        onChangeText={(fn) => this.setState({ groupname: fn, isGroupNameValid: this.validategroupname(fn) })}
                     />
+                    {!this.state.isGroupNameValid && <Text style={styles.TextError}>Group Name must be atleast 8 characters</Text>}
                 </View>
                 <View style={styles.padTop}>
                     <Text style={styles.textGlobal}>Group Primary Mobile Number</Text>
@@ -126,8 +147,9 @@ class AddNewFamily extends Component {
                         style={styles.TI}
                         placeholder="444-989-0989"
                         keyboardType={'numeric'}
-                        onChangeText={(fn) => this.setState({ groupphone: fn })}
+                        onChangeText={(fn) => this.setState({ groupphone: fn, isPhoneValid: this.validatePhone(fn) })}
                     />
+                    {!this.state.isPhoneValid && <Text style={styles.TextError}>Enter valid phone number</Text>}
                 </View>
                 <View style={styles.padTop}>
                     <View style={styles.container}>
@@ -136,7 +158,9 @@ class AddNewFamily extends Component {
                             onPress={() => {
                                 //this.sendSMS();
                                 console.log("140: save pressed");
-                                this.saveData();
+                                if (this.state.isPhoneValid && this.state.isGroupNameValid) {
+                                    this.saveData();
+                                }
                             }}
                         >
                             <Text style={styles.textGlobal}>Save</Text>
@@ -170,6 +194,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         marginRight: 5,
         overflow: 'hidden'
+    }, TextError : {
+        color:'gray'
     }
 });
 
