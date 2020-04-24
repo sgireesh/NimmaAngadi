@@ -16,7 +16,8 @@ class BoughtList extends React.Component {
             quantity: "1",
             storename: "",
             storephone: "",
-            from: ""
+            from: "",
+            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2/'    
         };
         this.getAsyncData();
     }
@@ -33,7 +34,30 @@ class BoughtList extends React.Component {
         }).then(res => { this.fbLoadList() });
     }
 
+    fbAuthenticate() {
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+            projectId: "nimmaangadi-bd2fc",
+            storageBucket: "nimmaangadi-bd2fc.appspot.com",
+            messagingSenderId: "889051007214",
+            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+            .then(function (result) {
+                console.log("40: " + result.user.uid);
+            }).catch(function (error) {
+                console.log("42: " + error);
+            });
+    }
     componentDidMount() {
+        this.fbAuthenticate();
         this._isMounted = true;
     }
     UNSAFE_componentWillMount() {
@@ -48,8 +72,8 @@ class BoughtList extends React.Component {
                         data={Object.keys(this.state.items)}
                         renderItem={({ item, index }) => (
                             <ListItem
-                                title={this.state.items[item].title}
-                                onSwipeFromLeft={() => { this.fbAddToShoppingList(item, this.state.items[item].title, this.state.items[item].id) }}
+                                title={this.state.items[item].title.concat(" : ", this.state.items[item].quantity)}
+                                onSwipeFromLeft={() => { this.fbAddToShoppingList(item, this.state.items[item])}}
                                 onRightPress={() => { this.fbDelete(item, this.state.items[item].title) }}
                                 textlabelright="delete"
                                 textlabelleft="buy again"
@@ -61,24 +85,25 @@ class BoughtList extends React.Component {
                 </View>
                 <View style={styles.padTop}>
 
-                <View style={styles.container}>
+                    <View style={styles.container}>
                         <TouchableOpacity
                             style={styles.buttonStyle}
                             onPress={() => {
-                                    this.props.navigation.navigate('ShoppingList');
-                                }}
+                                this.props.navigation.navigate('ShoppingList');
+                            }}
                         >
                             <Text>Back to Shopping List</Text>
                         </TouchableOpacity>
                     </View>
-                    </View>
+                </View>
             </View>
         );
     };
 
-    fbAddToShoppingList = (uid, title, id) => {
+    fbAddToShoppingList = (uid, item) => {
         console.log("62: uid: " + uid);
-        var listname = this.state.groupname;
+        var groupname = this.state.groupname;
+        /* 
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -92,20 +117,22 @@ class BoughtList extends React.Component {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        var refpath = "shoppinglist/" + listname + "/list/";
+*/
+        var path = this.state.appuid + "shoppinglist/" + groupname + "/lists/active/list/";
         var itempath = uid;
-        itempath = refpath.concat(itempath.replace(/\s+/g, '').toLowerCase());
-        console.log("bought list 49: " + itempath);
-        var ref = firebase.database().ref(itempath);
-        ref.update({ "title": title, "id": id });
+        path = path.concat(itempath.replace(/\s+/g, '').toLowerCase());
 
-        ref = firebase.database().ref("boughtlist/" + listname + "/list");
+        var ref = firebase.database().ref(path);
+        ref.update(item);
+
+        ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname + "/list");
         ref.child(uid).remove();
     }
 
     fbDelete = (uid, title) => {
         console.log("89: " + uid);
         var listname = this.state.groupname;
+        /*
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -119,11 +146,11 @@ class BoughtList extends React.Component {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-
-        var ref = firebase.database().ref("boughtlist/" + listname + "/list");
+*/
+        var ref = firebase.database().ref(this.state.appuid + "boughtlist/" + listname + "/list");
         ref.child(uid).remove();
 
-        var ref = firebase.database().ref("boughtlist/" + listname);
+        var ref = firebase.database().ref(this.state.appuid + "boughtlist/" + listname);
         ref.on('value', function (snapshot) {
             if (snapshot.val() != null) {
                 console.log("110: " + snapshot);
@@ -138,8 +165,9 @@ class BoughtList extends React.Component {
 
     fbLoadList = () => {
         console.log("todo list" + this.state.groupname);
-        var listname = this.state.groupname;
+        var groupname = this.state.groupname;
         // Initialize Firebase
+        /*
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
             authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
@@ -152,8 +180,8 @@ class BoughtList extends React.Component {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-
-        var ref = firebase.database().ref("boughtlist/" + listname);
+*/
+        var ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname);
         ref.on('value', function (snapshot) {
             if (snapshot.val() != null) {
                 //console.log(snapshot);

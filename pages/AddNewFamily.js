@@ -15,8 +15,32 @@ class AddNewFamily extends Component {
             setflag2: false,
             isPhoneValid: false,
             isGroupNameValid: false,
+            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2/'
         };
         this.backButtonClick = this.backButtonClick.bind(this);
+    }
+
+    fbAuthenticate() {
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+            projectId: "nimmaangadi-bd2fc",
+            storageBucket: "nimmaangadi-bd2fc.appspot.com",
+            messagingSenderId: "889051007214",
+            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+            .then(function (result) {
+                console.log("40: " + result.user.uid);
+            }).catch(function (error) {
+                console.log("42: " + error);
+            });
     }
 
     saveData = async () => {
@@ -46,7 +70,7 @@ class AddNewFamily extends Component {
 
             if (this.state.setflag1 && this.state.setflag2) {
                 this.fbAddNewGroup();
-                this.props.navigation.navigate('ShoppingList');
+                this.props.navigation.navigate('AllLists');
             }
         } catch (e) {
             console.log("Error ", e);
@@ -64,6 +88,7 @@ class AddNewFamily extends Component {
     }
 
     componentDidMount() {
+        this.fbAuthenticate();
         BackHandler.addEventListener('hardwareBackPress', this.backButtonClick);
     }
 
@@ -80,6 +105,7 @@ class AddNewFamily extends Component {
 
     fbAddNewGroup = () => {
         if (this.state.groupname) {
+            /*
             // Initialize Firebase
             const firebaseConfig = {
                 apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -93,38 +119,37 @@ class AddNewFamily extends Component {
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
+            */
             // Don't add if exists.
             var grouppath = this.state.groupname;
             var groupphone = this.state.groupphone;
             groupphone = groupphone.replace(/[^\d]/g, '');
-            grouppath = "groups/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), groupphone);
+            grouppath = this.state.appuid + "groups/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), groupphone);
 
-            console.log("63: " + grouppath);
+            console.log("103: " + grouppath);
 
             var ref = firebase.database().ref(grouppath);
             ref.update({ "groupname": this.state.groupname, "groupphone": this.state.groupphone });
-
         }
     }
 
     validategroupname = (groupname) => {
-        if(groupname.length > 8 && groupname.length < 20) {
+        if (groupname.length > 8 && groupname.length < 20) {
             return true;
         } else {
             return false;
         }
     }
+
     validatePhone = (phnumber) => {
-        console.log("111: hello");
         const reg = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
         if (reg.test(phnumber) === false) {
-            console.log("113: false");
             return false;
         } else {
-            console.log("117: true");
             return true;
         }
     }
+
     render() {
         return (
             <View style={styles.padTop}>
@@ -194,8 +219,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         marginRight: 5,
         overflow: 'hidden'
-    }, TextError : {
-        color:'gray'
+    }, TextError: {
+        color: 'gray'
     }
 });
 

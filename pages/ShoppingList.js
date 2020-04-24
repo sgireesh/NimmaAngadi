@@ -14,6 +14,7 @@ class ShoppingList extends React.Component {
             items: {},
             singleitem: "",
             groupname: "",
+            groupnamefull:"",
             groupphone: "",
             quantity: "1",
             storename: "",
@@ -21,10 +22,13 @@ class ShoppingList extends React.Component {
             from: "",
             labelleft: "",
             lagelright: "",
+            listname: "",
+            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2/'       
         };
         this.getAsyncData();
-
+/*
         this.props.navigation.setOptions({
+            title: this.state.groupname,
             headerLeft: () => (
                 <TouchableOpacity
                     onPress={() => this.props.navigation.navigate('Home')}
@@ -34,10 +38,37 @@ class ShoppingList extends React.Component {
 
             ),
         });
+*/
+    }
+
+    fbAuthenticate() {
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+            projectId: "nimmaangadi-bd2fc",
+            storageBucket: "nimmaangadi-bd2fc.appspot.com",
+            messagingSenderId: "889051007214",
+            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+            .then(function (result) {
+                console.log("40: " + result.user.uid);
+            }).catch(function (error) {
+                console.log("42: " + error);
+            });
     }
 
     getAsyncData() {
-        console.log(this.state.quantity);
+        AsyncStorage.getItem("listname").then((value) => {
+            console.log("shoppinglist: 42: listname: " + value);
+            this.setState({ "listname": value });
+        });
         AsyncStorage.getItem("from").then((value) => {
             console.log("shoppinglist: 26: from: " + value);
             this.setState({ "from": value });
@@ -56,9 +87,12 @@ class ShoppingList extends React.Component {
     }
 
     componentDidMount() {
+        this.fbAuthenticate();
         this._isMounted = true;
     }
 
+    componentWillUnmount() {
+    }
 
     getPickerElements() {
         var pickerArr = [];
@@ -80,7 +114,9 @@ class ShoppingList extends React.Component {
                         : <View style={styles.level_1}>
                             <View style={styles.level_11}>
                                 <TextInput
+                                    value={this.state.singleitem}
                                     style={styles.level_111}
+                                    //textAlign={'center'} 
                                     placeholder="Peanut/ಕಡ್ಲೇಕಾಯಿ"
                                     onChangeText={(itm) => this.setState({ singleitem: itm })}
                                     ref={input => { this.singleitem = input }}
@@ -88,7 +124,9 @@ class ShoppingList extends React.Component {
                             </View>
                             <View style={styles.level_12}>
                                 <TextInput
+                                    value={this.state.quantity}
                                     style={styles.level_121}
+                                    //textAlign={'center'} 
                                     placeholder="5"
                                     onChangeText={(itm) => this.setState({ quantity: itm })}
                                     keyboardType={'numeric'}
@@ -100,7 +138,7 @@ class ShoppingList extends React.Component {
                                     style={styles.level_131}
                                     onPress={() => this.fbAddToList()}
                                 >
-                                    <Icon style={styles.icon} name="shopping-cart" size={30} color="blue" />
+                                    <Icon style={styles.icon} name="plus-square" size={45} color='#ffffff' />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -111,9 +149,15 @@ class ShoppingList extends React.Component {
                         data={Object.keys(this.state.items)}
                         renderItem={({ item, index }) => (
                             <ListItem
-                                title={this.state.items[item].title}
-                                onSwipeFromLeft={() => { this.fbAddToBoughtList(item, this.state.items[item].title, this.state.items[item].id) }}
+                                pagename='ShoppingList'
+                                title={this.state.items[item].title.concat(" : ", this.state.items[item].quantity)}
+                                onSwipeFromLeft={() => { this.fbAddToBoughtList(item, this.state.items[item]) }}
                                 onRightPress={() => { this.fbDelete(item, this.state.items[item].title) }}
+                                onTitlePress={() => {
+                                    console.log("117: pressed");
+                                    this.setState({ singleitem: this.state.items[item].title });
+                                    this.setState({ quantity: this.state.items[item].quantity });
+                                }}
                                 textlabelright={this.state.labelright}
                                 textlabelleft={this.state.labelleft}
                             />
@@ -135,7 +179,7 @@ class ShoppingList extends React.Component {
                                         style={styles.buttonStyle}
                                         onPress={() => { this.addListToStore() }}
                                     >
-                                        <Text>Store Pickup</Text>
+                                        <Text style={styles.textGlobal}>Store Pickup</Text>
                                     </TouchableOpacity>
                                 </View>
                             }
@@ -146,7 +190,7 @@ class ShoppingList extends React.Component {
                                         this.props.navigation.navigate('BoughtList');
                                     }}
                                 >
-                                    <Text>Bought List</Text>
+                                    <Text style={styles.textGlobal}>Bought List</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -156,7 +200,7 @@ class ShoppingList extends React.Component {
                                     style={styles.buttonStyle}
                                     onPress={() => { this.notifyCustomer() }}
                                 >
-                                    <Text>Notify Customer Pickup</Text>
+                                    <Text style={styles.textGlobal}>Notify Customer Pickup</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -174,9 +218,10 @@ class ShoppingList extends React.Component {
         this.props.navigation.navigate('AddListToStore');
     };
 
-    fbAddToBoughtList = (uid, title, id) => {
+    fbAddToBoughtList = (uid, item) => {
         console.log("uid: " + uid);
-        var listname = this.state.groupname;
+        var groupname = this.state.groupname;
+        /*
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -189,23 +234,20 @@ class ShoppingList extends React.Component {
         };
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
-        }
-        var refpath = "boughtlist/" + listname + "/list/";
+        }*/
+        var path = this.state.appuid + "boughtlist/" + groupname + "/list/";
         var itempath = uid;
-        itempath = refpath.concat(itempath.replace(/\s+/g, '').toLowerCase());
-        console.log("49: " + itempath);
+        path = path.concat(itempath.replace(/\s+/g, '').toLowerCase());
 
-        firebase.database().ref(itempath).update({ "title": title, "id": id });
-        //            .then((data) => { console.log('success', data) })
-        //            .catch((error) => { console.log('error', error) });
+        firebase.database().ref(path).update(item);
 
-        firebase.database().ref("shoppinglist/" + listname + "/list").child(uid).remove();
-        //            .then((data) => { console.log('success', data) })
-        //            .catch((error) => { console.log('error', error) });
+        path = this.state.appuid + "shoppinglist/" + groupname + "/lists/active/list";
+        firebase.database().ref(path).child(uid).remove();
     }
 
     fbDelete = (uid, title) => {
-        var listname = this.state.groupname;
+        var groupname = this.state.groupname;
+        var listname = this.state.listname;
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -220,8 +262,10 @@ class ShoppingList extends React.Component {
             firebase.initializeApp(firebaseConfig);
         }
 
-        var ref = firebase.database().ref("shoppinglist/" + listname + "/list");
+        var ref = firebase.database().ref("shoppinglist/" + groupname + "/lists/" + listname + "/list");
         ref.child(uid).remove();
+        ref.off();
+
         /*
                 var ref = firebase.database().ref("shoppinglist/" + listname);
                 ref.on('value', function (snapshot) {
@@ -238,8 +282,10 @@ class ShoppingList extends React.Component {
     }
 
     fbLoadList = () => {
-        console.log("200 : todo list" + this.state.groupname);
-        var listname = this.state.groupname;
+        var uid='dh7OXmOVKNeDNVwR4XKyc70097I2/';
+
+        var groupname = this.state.groupname;
+        var listname = this.state.listname;
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -254,15 +300,19 @@ class ShoppingList extends React.Component {
             firebase.initializeApp(firebaseConfig);
         }
 
-        //get group info
-        var ref = firebase.database().ref("groups/" + listname + "/groupphone");
+        //get group phone
+        var path = uid + "groups/" + groupname;
+        var ref = firebase.database().ref(path);
         ref.once('value', (snapshot) => {
-            console.log("245: " + snapshot.val());
-            this.setState({ groupphone: snapshot.val() });
+            this.setState({ groupphone: snapshot.val().groupphone });
+            this.setState({ groupnamefull: snapshot.val().groupname });
+            this.props.navigation.setOptions({
+                title: this.state.groupnamefull
+            });
         });
 
-        ref = firebase.database().ref("shoppinglist/" + listname ); //+ "/list").orderByChild('id');
-
+        path = uid + "shoppinglist/" + groupname + "/lists/" + listname;
+        ref = firebase.database().ref(path);
 
         ref.on('value', function (snapshot) {
             /*
@@ -273,9 +323,83 @@ class ShoppingList extends React.Component {
                           });
             */
             if (snapshot.val() != null) {
-                //                console.log("217 " + snapshot);
                 const newitem1 = snapshot.val().list;
-                //                console.log(":221 " + newitem1);
+                if (newitem1) {
+                    this.setState({ items: newitem1 })
+                    const newitem2 = snapshot.val().store;
+                    if (newitem2) {
+                        if (newitem2.storename !== "Current Shopping List") {
+                            this.setState({ storename: newitem2.storename });
+                            this.setState({ storephone: newitem2.storephone });
+                        }
+                    }
+                } else {
+                    this.setState({ items: {} });
+                    console.log("270: list is empty");
+                }
+            } else {
+                this.setState({ items: {} });
+                console.log("274: list is empty");
+            }
+        }.bind(this), function () {
+            console.info("API initialization failed");
+        });
+
+        console.log("end getData, looking for ", ref);
+    }
+
+    showBoughtList = () => {
+        console.log("227 showboughtlist");
+    }
+
+    fbAddToList = () => {
+        var uid='dh7OXmOVKNeDNVwR4XKyc70097I2/';
+
+        Keyboard.dismiss()
+        var listname = this.state.listname;
+        if (listname === "Current Shopping List") {
+            listname = "active";
+        }
+
+        if (this.state.singleitem == null || this.state.singleitem == "") {
+            return null;
+        }
+        var groupname = this.state.groupname;
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+            projectId: "nimmaangadi-bd2fc",
+            storageBucket: "nimmaangadi-bd2fc.appspot.com",
+            messagingSenderId: "889051007214",
+            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        var path = uid + "shoppinglist/" + groupname + "/lists/" + listname + "/list";
+        var singleitem = this.state.singleitem;
+        path = path.concat('/', singleitem.replace(/\s+/g).toLowerCase());
+
+        var ref = firebase.database().ref(path);
+        ref.update({ "title": this.state.singleitem, "quantity": this.state.quantity, "id": Date.now() });
+
+        path = uid + "shoppinglist/" + groupname + "/lists/" + listname;
+        ref = firebase.database().ref(path);
+        ref.update({ "storename": "Current Shopping List", "storephone": "" });
+
+        this.singleitem.clear();
+        this.quantity.clear();
+
+
+        path = uid +  "shoppinglist/" + groupname + "/lists/" + listname;
+        ref = firebase.database().ref(path);
+
+        ref.on('value', function (snapshot) {
+            if (snapshot.val() != null) {
+                const newitem1 = snapshot.val().list;
                 if (newitem1) {
                     this.setState({ items: newitem1 })
                     const newitem2 = snapshot.val().store;
@@ -295,53 +419,6 @@ class ShoppingList extends React.Component {
             console.info("API initialization failed");
         });
         console.log("end getData, looking for ", ref);
-    }
-
-    showBoughtList = () => {
-        console.log("227 showboughtlist");
-    }
-
-    fbAddToList = () => {
-        Keyboard.dismiss()
-
-        if (this.state.singleitem == null || this.state.singleitem == "") {
-            return null;
-        }
-        var listname = this.state.groupname;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        var refpath = "shoppinglist/" + listname + "/list/";
-        var itempath = this.state.singleitem;
-        itempath = refpath.concat(itempath.replace(/\s+/g, '').toLowerCase());
-        console.log("49: " + itempath);
-        var ref = firebase.database().ref(itempath);
-        ref.update({ "title": this.state.singleitem.concat(" : ", this.state.quantity), "id": Date.now() });
-
-        this.singleitem.clear();
-        this.quantity.clear();
-
-        var ref2 = firebase.database().ref("shoppinglist/" + listname);
-        console.log("In getData, looking for ", ref2);
-
-        ref2.on('value', function (snapshot) {
-            console.log(snapshot);
-            const newitem1 = snapshot.val().list;
-            console.log(newitem1);
-            this.setState({ items: newitem1 })
-        }.bind(this), function () {
-            console.info("API initialization failed");
-        });
     }
 }
 
@@ -363,27 +440,30 @@ const styles = StyleSheet.create({
         flex: 15
     },
     icon: {
-        paddingVertical: 15,
+        paddingVertical: 11,
         paddingHorizontal: 0,
+        paddingLeft: 0,
         height: 70
     },
     level_111: {
         height: 70,
-        paddingLeft: 10,
-        borderColor: 'orange',
-        borderWidth: 1,
-        fontSize: 20
-    },
-    level_121: {
-        paddingLeft: 10,
-        borderColor: 'white',
+        paddingLeft: 20,
+        borderColor: 'lightgray',
         borderWidth: 1,
         fontSize: 20,
-        height: 70
+        color: '#ffffff'
+    },
+    level_121: {
+        paddingLeft: 20,
+        borderColor: 'lightgray',
+        borderWidth: 1,
+        fontSize: 20,
+        height: 70,
+        color: '#ffffff'
     },
     level_131: {
-        paddingLeft: 10,
-        borderColor: 'green',
+        paddingLeft: 2,
+        borderColor: 'lightgray',
         borderWidth: 1,
         fontSize: 20,
         height: 70
@@ -393,7 +473,9 @@ const styles = StyleSheet.create({
     container1: {
         flex: 1,
         flexDirection: 'column',
-        padding: 5
+        padding: 5,
+        backgroundColor: '#d47024'
+
     },
     col1: {
         padding: 1,
@@ -439,16 +521,17 @@ const styles = StyleSheet.create({
 
     textGlobal: {
         fontWeight: 'bold',
-        fontSize: 20
+        fontSize: 20,
+        color:'#ffffff'
     },
     buttonStyle: {
         justifyContent: 'center', //Centered vertically
         alignItems: 'center', // Centered horizontally
         height: 50,
-        backgroundColor: 'lightgray',
+        backgroundColor: '#d47024',
         borderRadius: 15,
-        borderWidth: 1,
-        borderColor: '#007aff',
+        borderWidth: 2,
+        borderColor: '#ffffff',
         marginLeft: 5,
         marginRight: 5,
         overflow: 'hidden'

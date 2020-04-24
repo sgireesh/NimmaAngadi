@@ -1,4 +1,4 @@
-import { Swipeable }  from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import React from 'react';
 import {
   View,
@@ -14,14 +14,21 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#d47024',
+
+    //    backgroundColor: '#fff',
     paddingHorizontal: 10,
     paddingVertical: 20,
   },
   text: {
-    color: 'black',
-    fontSize: 20,
-    textAlign:'left'
+    color: '#ffffff',
+    fontSize: 25,
+    textAlign: 'left'
+  },
+  textactive: {
+    color: 'green',
+    fontSize: 25,
+    textAlign: 'left'
   },
   separator: {
     flex: 1,
@@ -49,7 +56,7 @@ const styles = StyleSheet.create({
 
 export const Separator = () => <View style={styles.separator} />;
 
-const LeftActions = ({progress, dragX, textlabel}) => {
+const LeftActions = ({ progress, dragX, textlabel }) => {
   const scale = dragX.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
@@ -81,7 +88,7 @@ const RightActions = ({ progress, dragX, onPress, textlabel }) => {
   );
 };
 
-const ListItem = ({ title, onSwipeFromLeft, onRightPress, textlabelright, textlabelleft }) => (
+const ListItem = ({ pagename, title, onSwipeFromLeft, onRightPress, onTitlePress, textlabelright, textlabelleft }) => (
   <Swipeable
     //renderLeftActions={LeftActions}
     renderLeftActions={(progress, dragX) => (
@@ -93,9 +100,12 @@ const ListItem = ({ title, onSwipeFromLeft, onRightPress, textlabelright, textla
     )}
   >
     <View style={styles.container}>
-    <MCIcon style={styles.MCIcon} name="gesture-swipe-horizontal" size={35} color="#EDB760" />
-    <Text style={styles.text}>{"         " + title}</Text>
-
+      <MCIcon style={styles.MCIcon} name="gesture-swipe-horizontal" size={35} color="#d47024" />
+      <TouchableOpacity
+        onPress={onTitlePress}
+      >
+          <Text style={styles.text}>{"  " + title}</Text>
+      </TouchableOpacity>
     </View>
   </Swipeable>
 );

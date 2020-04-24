@@ -2,17 +2,23 @@ import React, { Component } from 'react';
 import ListItem, { Separator } from './ListItem';
 import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage, FlatList } from 'react-native';
 import * as firebase from 'firebase';
+import dbutils from "./dbutils";
 
 class AddListToStore extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            items : {},
+            items: {},
+            activeitems: {},
             storename: '',
             groupname: '',
             groupphone: '',
             isFamilyLoggedIn: true
         };
+        this.getAsyncData();
+    }
+
+    async componentDidMount() {
     }
 
     saveData = async () => {
@@ -23,9 +29,9 @@ class AddListToStore extends Component {
                 }
             });
             console.log("102: " + this.state.setflag1);
-    
+
             if (this.state.setflag1) {
-              this.props.navigation.navigate('ShoppingList');
+                this.props.navigation.navigate('ShoppingList');
             }
         } catch (e) {
             console.log("Error ", e);
@@ -42,14 +48,8 @@ class AddListToStore extends Component {
             } else {
                 this.setState({ isFamilyLoggedIn: false });
             }
-        });
-        AsyncStorage.getItem('groupphone').then((value) => {
-            if (value) {
-                this.setState({ isFamilyLoggedIn: true });
-                this.setState({ groupphone: value });
-            } else {
-                this.setState({ isFamilyLoggedIn: false });
-            }
+        }).then(() => {
+            this.fbLoadList();
         });
 
     }
@@ -71,7 +71,7 @@ class AddListToStore extends Component {
 
         var ref = firebase.database().ref("stores/");
         ref.on('value', function (snapshot) {
-            if(snapshot.val() != null){
+            if (snapshot.val() != null) {
                 console.log(snapshot);
                 const newitem1 = snapshot.val();
                 console.log(newitem1);
@@ -97,24 +97,61 @@ class AddListToStore extends Component {
             firebase.initializeApp(firebaseConfig);
         }
 
+
+
         var storepath = storename;
         var grouppath = this.state.groupname;
         storepath = "pendingorders/".concat(storepath.replace(/\s+/g, '').toLowerCase().concat("/", grouppath.replace(/\s+/g, '').toLowerCase()));
         console.log("AddListToStore: 86: " + storepath);
         var ref = firebase.database().ref(storepath);
-        ref.update({ "groupname": this.state.groupname, "groupphone": this.state.groupphone, "storestatus":"open" });
+        ref.update({ "groupname": this.state.groupname, "groupphone": this.state.groupphone, "storestatus": "open" });
 
-        //update list with the assigned store.
-        storepath = "shoppinglist/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), "/store");
-        console.log("AddListToStore: 92: " + storepath);
-        ref = firebase.database().ref(storepath);
-        ref.update({ "storename": storename, "storephone": storephone });
+        var path = "shoppinglist/".concat(grouppath, "/lists/active");
+        ref = firebase.database().ref(path);
+        //copy the list to a new name
+        ref.once('value', function (snapshot) {
+            if (snapshot.val() != null) {
+                console.log(snapshot);
+                const newitem1 = snapshot.val();
+                console.log(newitem1);
+                this.setState({ activeitems: newitem1 })
+            }
+        }.bind(this), function () {
+            console.info("API initialisation failed");
+        });
+
+        //get groupphone
+        var groupname = this.state.groupname;
+        console.log("125: " + groupname);
+        var groupphone = '';
+        var ref = firebase.database().ref("groups/" + groupname + "/groupphone");
+        ref.once('value', (snapshot) => {
+            console.log("129: " + snapshot.val());
+            groupphone = snapshot.val();
+            this.setState({ groupphone: groupphone });
+        }).then(  () => {
+            console.log("127  " + groupphone);
+
+            var listname = groupphone.concat("_", Date.now());
+
+            path = "shoppinglist/".concat(grouppath, "/lists/", listname);
+            ref = firebase.database().ref(path);
+            ref.update({ list: this.state.activeitems });
+
+            //create a unique list name, and then assigned store.
+            storepath = "shoppinglist/".concat(grouppath.replace(/\s+/g, '').toLowerCase(), "/lists/", listname, "/store");
+            console.log("AddListToStore: 92: " + storepath);
+            ref = firebase.database().ref(storepath);
+            ref.update({ "storename": storename, "storephone": storephone });
+
+            //clear active list
+            path = "shoppinglist/".concat(grouppath, "/lists/active");
+            ref = firebase.database().ref(path);
+            ref.remove();
+
+        });
         this.saveData();
-    }
-    
-    componentDidMount() {
-        this.getAsyncData();
-        this.fbLoadList();
+
     }
 
     render() {
@@ -124,16 +161,16 @@ class AddListToStore extends Component {
                     <Text style={styles.textGlobal}>Share your shopping list with:</Text>
                 </View>
                 <View style={styles.container}>
-                    <FlatList 
+                    <FlatList
                         data={Object.keys(this.state.items)}
-                        renderItem={({item, index }) => (  
-                        <ListItem
-                            title={this.state.items[item].storename}
-                            onSwipeFromLeft={() => {this.fbAddToPendingOrders(item, this.state.items[item].storename, this.state.items[item].storephone)}}
-                            onRightPress={() => {console.log("right button pressed")}}
-                            textlabelright=""
-                            textlabelleft="select store"
-                        />
+                        renderItem={({ item, index }) => (
+                            <ListItem
+                                title={this.state.items[item].storename}
+                                onSwipeFromLeft={() => { this.fbAddToPendingOrders(item, this.state.items[item].storename, this.state.items[item].storephone) }}
+                                onRightPress={() => { console.log("right button pressed") }}
+                                textlabelright=""
+                                textlabelleft="select store"
+                            />
                         )}
                         keyExtractor={item => item}
                         ItemSeparatorComponent={() => <Separator />}

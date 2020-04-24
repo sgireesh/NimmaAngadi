@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage, } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage, ImageBackground } from 'react-native';
 import { NavigationContainer, NavigationEvents } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AddNewFamily from './pages/AddNewFamily';
@@ -9,6 +9,7 @@ import BoughtList from './pages/BoughtList';
 import PendingOrders from './pages/PendingOrders';
 import AddListToStore from './pages/AddListToStore';
 import NotifyCustomer from './pages/NotifyCustomer';
+import AllLists from './pages/AllLists';
 
 class App extends Component {
   constructor(props) {
@@ -34,7 +35,7 @@ class App extends Component {
       .then(() => this.setState({ groupname: '' }));
   }
 
-  setNewFamily = async ({navigation}) => {
+  setNewFamily = async ({ navigation }) => {
     try {
       await AsyncStorage.getItem('groupname', (err, value) => {
         if (!err && value != null) {
@@ -65,15 +66,14 @@ class App extends Component {
       console.log("Error ", e);
     }
     console.log("65 app.js" + this.state.isFamilyLoggedIn);
-    if(this.state.isFamilyLoggedIn) {
+    if (this.state.isFamilyLoggedIn) {
       navigation.navigate('ShoppingList');
     } else {
-    navigation.navigate('AddNewFamily');
+      navigation.navigate('AddNewFamily');
     }
   }
 
-
-  setNewStore = async ({navigation}) => {
+  setNewStore = async ({ navigation }) => {
     try {
       await AsyncStorage.getItem('groupname', (err, value) => {
         if (!err && value != null) {
@@ -104,13 +104,12 @@ class App extends Component {
       console.log("Error ", e);
     }
     console.log("106 app.js" + this.state.isStoreLoggedIn);
-    if(this.state.isStoreLoggedIn) {
+    if (this.state.isStoreLoggedIn) {
       navigation.navigate('PendingOrders');
     } else {
-    navigation.navigate('AddNewStore');
+      navigation.navigate('AddNewStore');
     }
   }
-
 
   getData = async () => {
     try {
@@ -171,8 +170,10 @@ class App extends Component {
   componentDidMount() {
 
   }
+
   componentWillUnmount() {
   }
+
   saveData = async ({ navigation }) => {
     try {
       await AsyncStorage.setItem('from', 'group', (err) => {
@@ -183,7 +184,7 @@ class App extends Component {
       console.log("102: " + this.state.setflag1);
 
       if (this.state.setflag1) {
-        navigation.navigate('ShoppingList');
+        navigation.navigate('AllLists');
       }
     } catch (e) {
       console.log("Error ", e);
@@ -192,58 +193,60 @@ class App extends Component {
 
   HomeScreen = ({ navigation }) => {
     return (
-      <View style={styles.padTop}>
-        <View style={styles.padTop}>
-          <Text style={styles.textGlobal}>Welcome! Choose an Option.</Text>
-        </View>
-        <View style={styles.padTop}>
-          <View>
-            <TouchableOpacity
-              style={styles.buttonStyle}
-              title="Family"
-              onPress={() => {
-                console.log("105 " + this.state.isFamilyLoggedIn);
-                if (this.state.isFamilyLoggedIn === false) {
-                  this.setNewFamily({ navigation });
-                } else {
-                  this.saveData({ navigation });
+      <View style={styles.container}>
+        <ImageBackground source={require('./images/back.png')} style={styles.container}>
+
+          <View style={styles.padTop}>
+            <Text style={styles.textLabel}>Welcome!</Text>
+          </View>
+          <View style={styles.padTop}>
+            <View>
+              <TouchableOpacity
+                style={styles.buttonStyle}
+                title="Family"
+                onPress={() => {
+                  if (this.state.isFamilyLoggedIn === false) {
+                    this.setNewFamily({ navigation });
+                  } else {
+                    this.saveData({ navigation });
+                  }
                 }
-              }
-              }
-            >
-              <Text style={styles.textGlobal}>Your List</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={styles.padTop}>
-          <View>
-            <TouchableOpacity style={styles.buttonStyle}
-              title="Store"
-              onPress={() => {
-                if (this.state.isStoreLoggedIn === false) {
-                  this.setNewStore({navigation});
-                } else {
-                  navigation.navigate('PendingOrders');
                 }
-              }}
-            >
-              <Text style={styles.textGlobal}>Your Store</Text>
-            </TouchableOpacity>
+              >
+                <Text style={styles.textGlobal}>My Shopping</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-        <View style={styles.padTop}>
-          <View>
-            <TouchableOpacity style={styles.buttonStyle}
-              title="Store"
-              onPress={() => {
-                this.clearAsyncData();
-                //navigation.navigate('Home');
-              }}
-            >
-              <Text style={styles.textGlobal}>Clear Local Cache</Text>
-            </TouchableOpacity>
+          <View style={styles.padTop}>
+            <View>
+              <TouchableOpacity style={styles.buttonStyle}
+                title="Store"
+                onPress={() => {
+                  if (this.state.isStoreLoggedIn === false) {
+                    this.setNewStore({ navigation });
+                  } else {
+                    navigation.navigate('PendingOrders');
+                  }
+                }}
+              >
+                <Text style={styles.textGlobal}>My Fulfillment</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+          <View style={styles.padTop}>
+            <View>
+              <TouchableOpacity style={styles.buttonStyle}
+                title="Store"
+                onPress={() => {
+                  this.clearAsyncData();
+                  //navigation.navigate('Home');
+                }}
+              >
+                <Text style={styles.textGlobal}>Clear Local Cache</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ImageBackground>
       </View>
     );
   };
@@ -254,6 +257,12 @@ class App extends Component {
     );
   }
 
+  AllListsScreen = ({ navigation }) => {
+    return (
+      <AllLists navigation={navigation} />
+    );
+  }
+  
   ShoppingListScreen = ({ navigation }) => {
     return (
       <ShoppingList navigation={navigation} />
@@ -306,7 +315,14 @@ class App extends Component {
           <Stack.Screen
             name="Home"
             component={this.HomeScreen}
-            options={{ title: this.state.groupname, headerTitleAlign: 'center' }}
+            options={{
+              title: 'Pick\'N Deliver',
+              headerTitleAlign: 'center',
+              headerTintColor: '#fff',
+              headerStyle: {
+                backgroundColor: 'black'
+              }
+            }}
           />
           <Stack.Screen
             name="AddNewFamily"
@@ -348,6 +364,11 @@ class App extends Component {
             component={this.NotifyCustomerScreen}
             options={{ title: 'Notify Customer' }}
           />
+          <Stack.Screen
+            name="AllLists"
+            component={this.AllListsScreen}
+            options={{ title: 'Shopping Lists' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -355,24 +376,40 @@ class App extends Component {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 0,
+    //backgroundColor: '#d47024',
+    flex: 1
+  },
   padTop: {
     padding: 20
   },
-  textGlobal: {
+  textLabel: {
+    textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 18
+    fontSize: 28,
+    color: '#fff',
+    backgroundColor: 'black',
+    borderWidth: 1
+  },
+  textGlobal: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 28,
+    color: '#fff'
   },
   buttonStyle: {
     justifyContent: 'center', //Centered vertically
     alignItems: 'center', // Centered horizontally
     height: 60,
-    backgroundColor: 'lightgray',
+    backgroundColor: 'black',
     borderRadius: 15,
     borderWidth: 1,
     borderColor: '#007aff',
     marginLeft: 5,
     marginRight: 5,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    elevation: 2
   }
 });
 
