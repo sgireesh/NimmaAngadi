@@ -11,14 +11,14 @@
     ],
     "ios": {
       "bundleIdentifier": "com.gireesh.NimmaAngadi",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.1"
     },
     "android": {
       "package": "com.gireesh.NimmaAngadi",
-      "versionCode": 3,
+      "versionCode": 6,
       "permissions": []
     },
-    "version": "1.0.0",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/web_hi_res_512.png",
     "splash": {
@@ -31,6 +31,7 @@
     },
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "description": ""
   }
 }

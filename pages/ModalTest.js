@@ -25,7 +25,7 @@ class ModalExample extends Component {
                   
                   <TouchableHighlight onPress = {() => {
                      this.toggleModal(!this.state.modalVisible);
-                     this.props.navigation.navigate('ShoppingList');
+                     this.props.navigation.navigate('ShoppingList', {myparam:'store'});
                     }
                     }>
                      

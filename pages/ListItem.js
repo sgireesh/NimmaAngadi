@@ -1,4 +1,4 @@
-import { Swipeable }  from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import React from 'react';
 import {
   View,
@@ -7,25 +7,35 @@ import {
   Animated,
   TouchableOpacity,
 } from 'react-native';
-//import { GestureHandler } from 'react-native-gesture-handler';//'expo';
-//const { Swipeable } = GestureHandler;
+import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
+    //flexDirection: 'row',
+    backgroundColor: '#d47024',
+
+    //    backgroundColor: '#fff',
+    paddingHorizontal: 3,
+    paddingVertical: 2,
   },
   text: {
-    color: 'black',
-    fontSize: 15,
-    textAlign:'left'
+    color: '#ffffff',
+    fontSize: 25,
+    textAlign: 'left',
+    textDecorationLine: 'underline'
+  },
+  textactive: {
+    color: 'green',
+    fontSize: 25,
+    textAlign: 'left'
   },
   separator: {
-    flex: 1,
+//    flex: 1,
     height: 1,
     backgroundColor: '#e4e4e4',
-    marginLeft: 10,
+    marginLeft: 3,
   },
   leftAction: {
     backgroundColor: '#388e3c',
@@ -47,7 +57,7 @@ const styles = StyleSheet.create({
 
 export const Separator = () => <View style={styles.separator} />;
 
-const LeftActions = ({progress, dragX, textlabel}) => {
+const LeftActions = ({ progress, dragX, textlabel }) => {
   const scale = dragX.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
@@ -79,7 +89,7 @@ const RightActions = ({ progress, dragX, onPress, textlabel }) => {
   );
 };
 
-const ListItem = ({ title, onSwipeFromLeft, onRightPress, textlabelright, textlabelleft }) => (
+const ListItem = ({ pagename, title, onSwipeFromLeft, onRightPress, onTitlePress, textlabelright, textlabelleft }) => (
   <Swipeable
     //renderLeftActions={LeftActions}
     renderLeftActions={(progress, dragX) => (
@@ -91,7 +101,12 @@ const ListItem = ({ title, onSwipeFromLeft, onRightPress, textlabelright, textla
     )}
   >
     <View style={styles.container}>
-      <Text style={styles.text}>{"                 " + title}</Text>
+      <MCIcon style={styles.MCIcon} name="gesture-swipe-horizontal" size={35} color="#d47024" />
+      <TouchableOpacity
+        onPress={onTitlePress}
+      >
+          <Text style={styles.text}>{title.substring(0,29)}</Text>
+      </TouchableOpacity>
     </View>
   </Swipeable>
 );
