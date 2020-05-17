@@ -1,9 +1,9 @@
 import React from 'react';
 import ListItem, { Separator } from './ListItem';
 import * as firebase from 'firebase';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, FlatList, AsyncStorage, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, AsyncStorage } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-
+import moment from 'moment';
 
 class AllLists extends React.Component {
     constructor(props) {
@@ -16,7 +16,7 @@ class AllLists extends React.Component {
             from: "",
             labelleft: "",
             lagelright: "",
-            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2/'
+            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2'
         };
 
         this.getAsyncData();
@@ -33,6 +33,15 @@ class AllLists extends React.Component {
         });
     }
 
+    fbLogin() {
+        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+            .then(function (result) {
+                console.log("31: " + result.user.uid);
+            }).catch(function (error) {
+                console.log("33: " + error);
+            });
+    }
+
     fbAuthenticate() {
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
@@ -43,17 +52,18 @@ class AllLists extends React.Component {
             messagingSenderId: "889051007214",
             appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
         };
-        console.log("46: " + firebase.apps.length);
-
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
-            .then(function (result) {
-                console.log("41: " + result.user.uid + "   " + Object.keys(result.user));
-            }).catch(function (error) {
-                console.log("43: " + error);
-            });
+        this.fbLogin();
+
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                console.log("53: found user" + user.uid);
+            } else {
+                this.fbLogin();
+            }
+        });
     }
 
     getAsyncData() {
@@ -75,7 +85,9 @@ class AllLists extends React.Component {
     }
 
     componentDidMount() {
-        this.fbAuthenticate();
+        if (!firebase.apps.length) {
+            this.fbAuthenticate();
+        }
     }
 
     saveData = async (listname) => {
@@ -95,10 +107,22 @@ class AllLists extends React.Component {
         }
     }
 
+    getDt(dt) {
+        var dtte = moment.unix(dt / 1000).format('MM-DD hh:mm A');
+        return dtte;
+    }
+
+
     render = () => {
         return (
             <View style={styles.container1}>
-                <View>
+                <View style={styles.col1}>
+                    <View>
+                        <Text style={styles.textGlobal}>Group Name: {this.state.groupnamefull}</Text>
+                        <Text style={styles.textGlobal}>Phone :  {this.state.groupphone} </Text>
+                    </View>
+                </View>
+                <View style={styles.col2}>
                     <TouchableOpacity
                         style={styles.buttonStyle}
                         title="Family"
@@ -107,26 +131,26 @@ class AllLists extends React.Component {
                         }
                         }
                     >
-                        <Text style={styles.textGlobal}>My Shopping List</Text>
+                        <View style={styles.row_11}>
+                            <Text style={styles.textGlobal}> Add Items to my Current List </Text>
+                        </View>
                     </TouchableOpacity>
                 </View>
                 <View >
-                    <View style={styles.padTop}>
-                        <Text style={styles.textGlobal}>Group Name: {this.state.groupnamefull}</Text>
-                        <Text style={styles.textGlobal}>Phone :  {this.state.groupphone} </Text>
+                    <View> 
+                        <Text style={styles.textGlobal}>Status below on lists you sent to Stores</Text>
                     </View>
                 </View>
-                <View style={styles.col2}>
+                <View style={styles.col3}>
                     <FlatList
                         data={Object.keys(this.state.items)}
                         renderItem={({ item, index }) => (
                             <ListItem
                                 pagename='AllLists'
-                                title={'list sent to:   ' + this.state.items[item].store.storename}
+                                title={this.getDt(item.split('_')[1]).concat(" ", this.state.items[item].store.storename)}
                                 onSwipeFromLeft={() => { this.fbAddToBoughtList(item, this.state.items[item].title, this.state.items[item].id) }}
                                 onRightPress={() => { this.fbDelete(item, this.state.items[item].title) }}
                                 onTitlePress={() => {
-                                    console.log("117: pressed");
                                     this.saveData(item);
                                 }}
                                 textlabelright={this.state.labelright}
@@ -144,28 +168,28 @@ class AllLists extends React.Component {
     fbAddToBoughtList = (uid, title, id) => {
         console.log("uid: " + uid);
         var groupname = this.state.groupname;
-/*
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        */
-        var refpath = this.state.appuid + "boughtlist/" + groupname + "/list/";
+        /*
+                // Initialize Firebase
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+                    authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+                    databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+                    projectId: "nimmaangadi-bd2fc",
+                    storageBucket: "nimmaangadi-bd2fc.appspot.com",
+                    messagingSenderId: "889051007214",
+                    appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+                };
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                */
+        var refpath = this.state.appuid + "/boughtlist/" + groupname + "/list/";
         var itempath = uid;
         itempath = refpath.concat(itempath.replace(/\s+/g, '').toLowerCase());
         console.log("49: " + itempath);
 
         firebase.database().ref(itempath).update({ "title": title, "id": id });
-        firebase.database().ref(this.state.appuid + "shoppinglist/" + groupname + "/lists/active/list").child(uid).remove();
+        firebase.database().ref(this.state.appuid + "/shoppinglist/" + groupname + "/lists/active/list").child(uid).remove();
     }
 
     fbDelete = (uid, title) => {
@@ -184,108 +208,63 @@ class AllLists extends React.Component {
             firebase.initializeApp(firebaseConfig);
         }
 
-        var ref = firebase.database().ref(this.state.appuid + "shoppinglist/" + listname + "/list");
+        var ref = firebase.database().ref(this.state.appuid + "/shoppinglist/" + listname + "/list");
         ref.child(uid).remove();
     }
 
     fbLoadList = () => {
         var groupname = this.state.groupname;
-        
+
         //get group phone
-        var path = this.state.appuid + "groups/" + groupname;
+        var path = this.state.appuid + "/groups/" + groupname;
         var ref = firebase.database().ref(path);
-        console.log("204: looking for ", ref);
 
         ref.once('value', (snapshot) => {
-            console.log("205: " + Object.keys(snapshot));
             this.setState({ groupphone: snapshot.val().groupphone });
             this.setState({ groupnamefull: snapshot.val().groupname });
         });
 
-        path = this.state.appuid + "shoppinglist/" + groupname + "/lists/";
+        path = this.state.appuid + "/shoppinglist/" + groupname + "/lists/";
         ref = firebase.database().ref(path);
 
         ref.once('value', function (snapshot) {
             if (snapshot.val() != null) {
                 const newitem1 = snapshot.val();
-                console.log("217 " + newitem1);
                 if (newitem1) {
                     delete newitem1['active'];
                     this.setState({ items: newitem1 })
                 } else {
                     this.setState({ items: {} });
-                    console.log("270: list is empty");
+                    console.log("226: list is empty");
                 }
             } else {
                 this.setState({ items: {} });
-                console.log("274: list is empty");
+                console.log("230: list is empty");
             }
         }.bind(this), function () {
             console.info("API initialization failed");
         });
-        console.log("end getData, looking for ", ref);
     }
 }
 
 const styles = StyleSheet.create({
-    level_1: {
-        height: 70,
-        flexDirection: 'row'
-    },
-    level_11: {
-        height: 70,
-        flex: 75
-    },
-    level_12: {
-        height: 70,
-        flex: 20
-    },
-    level_13: {
-        height: 70,
-        flex: 15
-    },
-    icon: {
-        paddingVertical: 15,
-        paddingHorizontal: 0,
-        height: 70
-    },
-    level_111: {
-        height: 70,
-        paddingLeft: 10,
-        borderColor: 'orange',
-        borderWidth: 1,
-        fontSize: 20
-    },
-    level_121: {
-        paddingLeft: 10,
-        borderColor: 'white',
-        borderWidth: 1,
-        fontSize: 20,
-        height: 70
-    },
-    level_131: {
-        paddingLeft: 10,
-        borderColor: 'green',
-        borderWidth: 1,
-        fontSize: 20,
-        height: 70
-    },
     container1: {
         flex: 1,
         flexDirection: 'column',
-        padding: 5
+        padding: 5,
+        backgroundColor: '#d47024'
     },
     col1: {
         padding: 1,
-        flex: 0
+        flex: 20
     },
     col2: {
         padding: 1,
-        flex: 83
+        flex: 10
     },
     col3: {
         padding: 1,
-        flex: 8
+        flex: 70
     },
 
 
@@ -294,9 +273,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     row_11: {
-        padding: 5,
-        flex: 1,
-        height: 25
+        padding: 3,
+        flex: 1
     },
 
 
@@ -316,19 +294,22 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
 
+
     textGlobal: {
+        padding: 5,
         fontWeight: 'bold',
         fontSize: 20,
-        padding: 10
+        color: '#ffffff',
+        justifyContent: 'center'
     },
     buttonStyle: {
         justifyContent: 'center', //Centered vertically
-        alignItems: 'center', // Centered horizontally
+        //  alignItems: 'center', // Centered horizontally
         height: 50,
-        backgroundColor: 'lightgray',
+        backgroundColor: 'black',
         borderRadius: 15,
-        borderWidth: 1,
-        borderColor: '#007aff',
+        borderWidth: 2,
+        borderColor: '#ffffff',
         marginLeft: 5,
         marginRight: 5,
         overflow: 'hidden'

@@ -14,7 +14,7 @@ class ShoppingList extends React.Component {
             items: {},
             singleitem: "",
             groupname: "",
-            groupnamefull:"",
+            groupnamefull: "",
             groupphone: "",
             quantity: "1",
             storename: "",
@@ -23,26 +23,34 @@ class ShoppingList extends React.Component {
             labelleft: "",
             lagelright: "",
             listname: "",
-            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2/'       
+            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2'
         };
         this.getAsyncData();
-/*
-        this.props.navigation.setOptions({
-            title: this.state.groupname,
-            headerLeft: () => (
-                <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('Home')}
-                >
-                    <Icon style={{ paddingLeft: 10 }} name="arrow-left" size={26} color="black" />
-                </TouchableOpacity>
+        /*
+                this.props.navigation.setOptions({
+                    title: this.state.groupname,
+                    headerLeft: () => (
+                        <TouchableOpacity
+                            onPress={() => this.props.navigation.navigate('Home')}
+                        >
+                            <Icon style={{ paddingLeft: 10 }} name="arrow-left" size={26} color="black" />
+                        </TouchableOpacity>
+        
+                    ),
+                });
+        */
+    }
 
-            ),
-        });
-*/
+    fbLogin() {
+        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+            .then(function (result) {
+                console.log("31: " + result.user.uid);
+            }).catch(function (error) {
+                console.log("33: " + error);
+            });
     }
 
     fbAuthenticate() {
-        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
             authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
@@ -55,13 +63,15 @@ class ShoppingList extends React.Component {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
+        this.fbLogin();
 
-        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
-            .then(function (result) {
-                console.log("40: " + result.user.uid);
-            }).catch(function (error) {
-                console.log("42: " + error);
-            });
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                console.log("53: found user" + user.uid);
+            } else {
+                this.fbLogin();
+            }
+        });
     }
 
     getAsyncData() {
@@ -108,7 +118,7 @@ class ShoppingList extends React.Component {
             <View style={styles.container1}>
                 <View style={styles.col1}>
                     {(this.state.from === 'store')
-                        ? <View style={styles.padTop}>
+                        ? <View >
                             <Text>{this.state.groupname} {this.state.groupphone} </Text>
                         </View>
                         : <View style={styles.level_1}>
@@ -169,30 +179,32 @@ class ShoppingList extends React.Component {
                 <View style={styles.col3}>
                     {(this.state.from !== 'store')
                         ? <View style={styles.row_1}>
-                            {(this.state.storename)
+                            {(this.state.storename !== "Current Shopping List")
                                 ? <View style={styles.row_11}>
-                                    <Text>Store Pickup with</Text>
-                                    <Text>{this.state.storename}</Text>
+                                    <Text style={styles.textGlobal}>Sent to store:  {this.state.storename}</Text>
                                 </View>
                                 : <View style={styles.row_11} >
                                     <TouchableOpacity
                                         style={styles.buttonStyle}
                                         onPress={() => { this.addListToStore() }}
                                     >
-                                        <Text style={styles.textGlobal}>Store Pickup</Text>
+                                        <Text style={styles.textGlobal}>Send To Store</Text>
                                     </TouchableOpacity>
                                 </View>
                             }
-                            <View style={styles.row_11}>
-                                <TouchableOpacity
-                                    style={styles.buttonStyle}
-                                    onPress={() => {
-                                        this.props.navigation.navigate('BoughtList');
-                                    }}
-                                >
-                                    <Text style={styles.textGlobal}>Bought List</Text>
-                                </TouchableOpacity>
-                            </View>
+                            {(this.state.storename !== "Current Shopping List")
+                                ? <View></View>
+                                : <View style={styles.row_11}>
+                                    <TouchableOpacity
+                                        style={styles.buttonStyle}
+                                        onPress={() => {
+                                            this.props.navigation.navigate('BoughtList');
+                                        }}
+                                    >
+                                        <Text style={styles.textGlobal}>Master List</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            }
                         </View>
                         : <View style={styles.row_1}>
                             <View style={styles.row_11}>
@@ -206,6 +218,19 @@ class ShoppingList extends React.Component {
                         </View>
                     }
                 </View>
+                {(this.state.storename !== "Current Shopping List")
+                ?<View >
+                    <TouchableOpacity
+                        style={styles.buttonStyle}
+                        onPress={() => {
+                            console.log("cancel order pressed, add code here");
+                        }}
+                    >
+                        <Text style={styles.textGlobal}>Cancel Order</Text>
+                    </TouchableOpacity>
+                </View>
+                :<View></View>
+                }
             </View>
         );
     };
@@ -221,87 +246,35 @@ class ShoppingList extends React.Component {
     fbAddToBoughtList = (uid, item) => {
         console.log("uid: " + uid);
         var groupname = this.state.groupname;
-        /*
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }*/
-        var path = this.state.appuid + "boughtlist/" + groupname + "/list/";
+
+        var path = this.state.appuid + "/boughtlist/" + groupname + "/list/";
         var itempath = uid;
         path = path.concat(itempath.replace(/\s+/g, '').toLowerCase());
 
         firebase.database().ref(path).update(item);
 
-        path = this.state.appuid + "shoppinglist/" + groupname + "/lists/active/list";
+        path = this.state.appuid + "/shoppinglist/" + groupname + "/lists/active/list";
         firebase.database().ref(path).child(uid).remove();
     }
 
     fbDelete = (uid, title) => {
         var groupname = this.state.groupname;
         var listname = this.state.listname;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
 
         var ref = firebase.database().ref("shoppinglist/" + groupname + "/lists/" + listname + "/list");
         ref.child(uid).remove();
         ref.off();
-
-        /*
-                var ref = firebase.database().ref("shoppinglist/" + listname);
-                ref.on('value', function (snapshot) {
-                    if (snapshot.val() != null) {
-                        console.log(snapshot);
-                        const newitem1 = snapshot.val().list;
-                        console.log(newitem1);
-                        this.setState({ items: newitem1 })
-                    }
-                }.bind(this), function () {
-                    console.info("API initialisation failed");
-                });
-                */
     }
 
     fbLoadList = () => {
-        var uid='dh7OXmOVKNeDNVwR4XKyc70097I2/';
-
         var groupname = this.state.groupname;
         var listname = this.state.listname;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+
+        console.log("298 : " + groupname);
+        console.log("299 : " + listname);
 
         //get group phone
-        var path = uid + "groups/" + groupname;
+        var path = this.state.appuid + "/groups/" + groupname;
         var ref = firebase.database().ref(path);
         ref.once('value', (snapshot) => {
             this.setState({ groupphone: snapshot.val().groupphone });
@@ -311,27 +284,25 @@ class ShoppingList extends React.Component {
             });
         });
 
-        path = uid + "shoppinglist/" + groupname + "/lists/" + listname;
+        path = this.state.appuid + "/shoppinglist/" + groupname + "/lists/" + listname;
         ref = firebase.database().ref(path);
 
         ref.on('value', function (snapshot) {
-            /*
-                        snapshot.forEach(function(childSnapshot) {
-                            var childKey = childSnapshot.key;
-                            var childData = childSnapshot.val();
-                            console.log(childKey + "  " + childData.id);
-                          });
-            */
             if (snapshot.val() != null) {
                 const newitem1 = snapshot.val().list;
                 if (newitem1) {
                     this.setState({ items: newitem1 })
                     const newitem2 = snapshot.val().store;
                     if (newitem2) {
-                        if (newitem2.storename !== "Current Shopping List") {
-                            this.setState({ storename: newitem2.storename });
-                            this.setState({ storephone: newitem2.storephone });
-                        }
+                        //if (newitem2.storename !== "Current Shopping List") {
+                        this.setState({ storename: newitem2.storename });
+                        this.setState({ storephone: newitem2.storephone });
+                        console.log("287: " + newitem2.storename);
+                        console.log("288: " + newitem2.storephone);
+                        //} else {
+                        //  this.setState({ storename: ''});
+                        //  this.setState({ storephone: ''});
+                        //}
                     }
                 } else {
                     this.setState({ items: {} });
@@ -345,7 +316,8 @@ class ShoppingList extends React.Component {
             console.info("API initialization failed");
         });
 
-        console.log("end getData, looking for ", ref);
+        console.log("306: " + this.state.storename);
+        console.log("307: " + this.state.storephone);
     }
 
     showBoughtList = () => {
@@ -353,8 +325,6 @@ class ShoppingList extends React.Component {
     }
 
     fbAddToList = () => {
-        var uid='dh7OXmOVKNeDNVwR4XKyc70097I2/';
-
         Keyboard.dismiss()
         var listname = this.state.listname;
         if (listname === "Current Shopping List") {
@@ -365,36 +335,21 @@ class ShoppingList extends React.Component {
             return null;
         }
         var groupname = this.state.groupname;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        var path = uid + "shoppinglist/" + groupname + "/lists/" + listname + "/list";
+        var path = this.state.appuid + "/shoppinglist/" + groupname + "/lists/" + listname + "/list";
         var singleitem = this.state.singleitem;
         path = path.concat('/', singleitem.replace(/\s+/g).toLowerCase());
 
         var ref = firebase.database().ref(path);
         ref.update({ "title": this.state.singleitem, "quantity": this.state.quantity, "id": Date.now() });
 
-        path = uid + "shoppinglist/" + groupname + "/lists/" + listname;
+        path = this.state.appuid + "/shoppinglist/" + groupname + "/lists/" + listname + "/store";
         ref = firebase.database().ref(path);
         ref.update({ "storename": "Current Shopping List", "storephone": "" });
 
         this.singleitem.clear();
         this.quantity.clear();
 
-
-        path = uid +  "shoppinglist/" + groupname + "/lists/" + listname;
+        path = this.state.appuid + "/shoppinglist/" + groupname + "/lists/" + listname;
         ref = firebase.database().ref(path);
 
         ref.on('value', function (snapshot) {
@@ -418,7 +373,6 @@ class ShoppingList extends React.Component {
         }.bind(this), function () {
             console.info("API initialization failed");
         });
-        console.log("end getData, looking for ", ref);
     }
 }
 
@@ -487,7 +441,7 @@ const styles = StyleSheet.create({
     },
     col3: {
         padding: 1,
-        flex: 8
+        flex: 10
     },
 
 
@@ -522,7 +476,7 @@ const styles = StyleSheet.create({
     textGlobal: {
         fontWeight: 'bold',
         fontSize: 20,
-        color:'#ffffff'
+        color: '#ffffff'
     },
     buttonStyle: {
         justifyContent: 'center', //Centered vertically

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, AsyncStorage, ImageBackground } from 'react-native';
-import { NavigationContainer, NavigationEvents } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AddNewFamily from './pages/AddNewFamily';
 import AddNewStore from './pages/AddNewStore';
@@ -10,6 +10,7 @@ import PendingOrders from './pages/PendingOrders';
 import AddListToStore from './pages/AddListToStore';
 import NotifyCustomer from './pages/NotifyCustomer';
 import AllLists from './pages/AllLists';
+import * as firebase from 'firebase';
 
 class App extends Component {
   constructor(props) {
@@ -18,11 +19,43 @@ class App extends Component {
       isFamilyLoggedIn: false,
       isStoreLoggedIn: false,
       groupname: '',
-      setflag1: false,
+      setflag1: false
     };
     Stack = createStackNavigator();
-    //this.clearAsyncData();
     this.getData();
+  }
+  
+  fbLogin = () => {
+    firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+      .then(function (result) {
+        console.log("31: " + result.user.uid);
+      }).catch(function (error) {
+        console.log("33: " + error);
+      });
+  }
+
+  fbAuthenticate = () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+      authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+      databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+      projectId: "nimmaangadi-bd2fc",
+      storageBucket: "nimmaangadi-bd2fc.appspot.com",
+      messagingSenderId: "889051007214",
+      appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    this.fbLogin();
+
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        console.log("53: found user" + user.uid);
+      } else {
+        this.fbLogin();
+      }
+    });
   }
 
   clearAsyncData() {
@@ -41,8 +74,8 @@ class App extends Component {
         if (!err && value != null) {
           this.setState({ isFamilyLoggedIn: true });
           this.setState({ groupname: value });
-          console.log("40 " + this.state.isFamilyLoggedIn);
-          console.log("41 " + value + " " + this.state.groupname);
+          console.log("79 " + this.state.isFamilyLoggedIn);
+          console.log("80 " + value + " " + this.state.groupname);
         } else {
           this.setState({ isFamilyLoggedIn: false });
         }
@@ -56,8 +89,8 @@ class App extends Component {
         if (!err && value != null) {
           this.setState({ isStoreLoggedIn: true });
           this.setState({ storename: value });
-          console.log("40 " + this.state.isStoreLoggedIn);
-          console.log("41 " + value + " " + this.state.storename);
+          console.log("94 " + this.state.isStoreLoggedIn);
+          console.log("95 " + value + " " + this.state.storename);
         } else {
           this.setState({ isStoreLoggedIn: false });
         }
@@ -79,8 +112,8 @@ class App extends Component {
         if (!err && value != null) {
           this.setState({ isFamilyLoggedIn: true });
           this.setState({ groupname: value });
-          console.log("40 " + this.state.isFamilyLoggedIn);
-          console.log("41 " + value + " " + this.state.groupname);
+          console.log("177 " + this.state.isFamilyLoggedIn);
+          console.log("118 " + value + " " + this.state.groupname);
         } else {
           this.setState({ isFamilyLoggedIn: false });
         }
@@ -94,8 +127,8 @@ class App extends Component {
         if (!err && value != null) {
           this.setState({ isStoreLoggedIn: true });
           this.setState({ storename: value });
-          console.log("40 " + this.state.isStoreLoggedIn);
-          console.log("41 " + value + " " + this.state.storename);
+          console.log("132 " + this.state.isStoreLoggedIn);
+          console.log("133 " + value + " " + this.state.storename);
         } else {
           this.setState({ isStoreLoggedIn: false });
         }
@@ -117,8 +150,8 @@ class App extends Component {
         if (!err && value != null) {
           this.setState({ isFamilyLoggedIn: true });
           this.setState({ groupname: value });
-          console.log("40 " + this.state.isFamilyLoggedIn);
-          console.log("41 " + value + " " + this.state.groupname);
+          console.log("155 " + this.state.isFamilyLoggedIn);
+          console.log("156 " + value + " " + this.state.groupname);
         } else {
           this.setState({ isFamilyLoggedIn: false });
         }
@@ -132,8 +165,8 @@ class App extends Component {
         if (!err && value != null) {
           this.setState({ isStoreLoggedIn: true });
           this.setState({ storename: value });
-          console.log("40 " + this.state.isStoreLoggedIn);
-          console.log("41 " + value + " " + this.state.storename);
+          console.log("170 " + this.state.isStoreLoggedIn);
+          console.log("171 " + value + " " + this.state.storename);
         } else {
           this.setState({ isStoreLoggedIn: false });
         }
@@ -149,8 +182,8 @@ class App extends Component {
       if (value) {
         this.setState({ isFamilyLoggedIn: true });
         this.setState({ groupname: value });
-        console.log("40 " + this.state.isFamilyLoggedIn);
-        console.log("41 " + value + " " + this.state.groupname);
+        console.log("187 " + this.state.isFamilyLoggedIn);
+        console.log("188 " + value + " " + this.state.groupname);
       } else {
         this.setState({ isFamilyLoggedIn: false });
       }
@@ -159,8 +192,8 @@ class App extends Component {
       if (value) {
         this.setState({ isStoreLoggedIn: true });
         this.setState({ storename: value });
-        console.log("40 " + this.state.isStoreLoggedIn);
-        console.log("41 " + value + " " + this.state.storename);
+        console.log("197 " + this.state.isStoreLoggedIn);
+        console.log("198 " + value + " " + this.state.storename);
       } else {
         this.setState({ isStoreLoggedIn: false });
       }
@@ -168,7 +201,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-
+    if (!firebase.apps.length) {
+      this.fbAuthenticate();
+    }
   }
 
   componentWillUnmount() {
@@ -262,7 +297,7 @@ class App extends Component {
       <AllLists navigation={navigation} />
     );
   }
-  
+
   ShoppingListScreen = ({ navigation }) => {
     return (
       <ShoppingList navigation={navigation} />

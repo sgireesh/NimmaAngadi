@@ -13,17 +13,18 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    //flexDirection: 'row',
     backgroundColor: '#d47024',
 
     //    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
   },
   text: {
     color: '#ffffff',
     fontSize: 25,
-    textAlign: 'left'
+    textAlign: 'left',
+    textDecorationLine: 'underline'
   },
   textactive: {
     color: 'green',
@@ -31,10 +32,10 @@ const styles = StyleSheet.create({
     textAlign: 'left'
   },
   separator: {
-    flex: 1,
+//    flex: 1,
     height: 1,
     backgroundColor: '#e4e4e4',
-    marginLeft: 10,
+    marginLeft: 3,
   },
   leftAction: {
     backgroundColor: '#388e3c',
@@ -104,7 +105,7 @@ const ListItem = ({ pagename, title, onSwipeFromLeft, onRightPress, onTitlePress
       <TouchableOpacity
         onPress={onTitlePress}
       >
-          <Text style={styles.text}>{"  " + title}</Text>
+          <Text style={styles.text}>{title.substring(0,29)}</Text>
       </TouchableOpacity>
     </View>
   </Swipeable>

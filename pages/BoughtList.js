@@ -21,7 +21,6 @@ class BoughtList extends React.Component {
         };
         this.getAsyncData();
     }
-
     getAsyncData() {
         console.log(this.state.quantity);
         AsyncStorage.getItem("from").then((value) => {
@@ -33,7 +32,6 @@ class BoughtList extends React.Component {
             this.setState({ "groupname": value });
         }).then(res => { this.fbLoadList() });
     }
-
     fbAuthenticate() {
         // Initialize Firebase
         const firebaseConfig = {
@@ -63,11 +61,10 @@ class BoughtList extends React.Component {
     UNSAFE_componentWillMount() {
         this._isMounted = false;
     }
-
     render = () => {
         return (
-            <View style={styles.container}>
-                <View style={styles.container}>
+            <View style={styles.container1}>
+                <View style={styles.col2}>
                     <FlatList
                         data={Object.keys(this.state.items)}
                         renderItem={({ item, index }) => (
@@ -83,9 +80,8 @@ class BoughtList extends React.Component {
                         ItemSeparatorComponent={() => <Separator />}
                     />
                 </View>
-                <View style={styles.padTop}>
-
-                    <View style={styles.container}>
+                <View style={styles.col3}>
+                    <View style={styles.rowl1}>
                         <TouchableOpacity
                             style={styles.buttonStyle}
                             onPress={() => {
@@ -99,25 +95,10 @@ class BoughtList extends React.Component {
             </View>
         );
     };
-
     fbAddToShoppingList = (uid, item) => {
         console.log("62: uid: " + uid);
         var groupname = this.state.groupname;
-        /* 
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-*/
+        
         var path = this.state.appuid + "shoppinglist/" + groupname + "/lists/active/list/";
         var itempath = uid;
         path = path.concat(itempath.replace(/\s+/g, '').toLowerCase());
@@ -125,10 +106,11 @@ class BoughtList extends React.Component {
         var ref = firebase.database().ref(path);
         ref.update(item);
 
-        ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname + "/list");
-        ref.child(uid).remove();
+        //ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname + "/list");
+        //ref.child(uid).remove();
+        //console.log("added: " + Object.keys(item));
+        alert("Added: " + item.title);
     }
-
     fbDelete = (uid, title) => {
         console.log("89: " + uid);
         var listname = this.state.groupname;
@@ -162,37 +144,30 @@ class BoughtList extends React.Component {
             console.info("API initialization failed");
         });
     }
-
     fbLoadList = () => {
-        console.log("todo list" + this.state.groupname);
         var groupname = this.state.groupname;
-        // Initialize Firebase
-        /*
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-*/
-        var ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname);
+
+        console.log("298 : " + groupname);
+
+        //get group phone
+        var path = this.state.appuid + "/groups/" + groupname;
+        var ref = firebase.database().ref(path);
+        ref.once('value', (snapshot) => {
+            this.setState({ groupphone: snapshot.val().groupphone });
+            this.setState({ groupnamefull: snapshot.val().groupname });
+            this.props.navigation.setOptions({
+                title: this.state.groupnamefull
+            });
+        });
+
+        ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname);
         ref.on('value', function (snapshot) {
             if (snapshot.val() != null) {
                 //console.log(snapshot);
                 const newitem1 = snapshot.val().list;
                 //console.log(newitem1);
                 this.setState({ items: newitem1 })
-                const newitem2 = snapshot.val().store;
-                if (newitem2) {
-                    this.setState({ storename: newitem2.storename });
-                    this.setState({ storephone: newitem2.storephone });
-                }
+                
             } else {
                 this.setState({ items: {} });
                 console.log("228: list is empty");
@@ -200,41 +175,123 @@ class BoughtList extends React.Component {
         }.bind(this), function () {
             console.info("API initialization failed");
         });
-        console.log("end getData, looking for ", ref);
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
+    level_1: {
+        height: 70,
+        flexDirection: 'row'
     },
+    level_11: {
+        height: 70,
+        flex: 75
+    },
+    level_12: {
+        height: 70,
+        flex: 20
+    },
+    level_13: {
+        height: 70,
+        flex: 15
+    },
+    icon: {
+        paddingVertical: 11,
+        paddingHorizontal: 0,
+        paddingLeft: 0,
+        height: 70
+    },
+    level_111: {
+        height: 70,
+        paddingLeft: 20,
+        borderColor: 'lightgray',
+        borderWidth: 1,
+        fontSize: 20,
+        color: '#ffffff'
+    },
+    level_121: {
+        paddingLeft: 20,
+        borderColor: 'lightgray',
+        borderWidth: 1,
+        fontSize: 20,
+        height: 70,
+        color: '#ffffff'
+    },
+    level_131: {
+        paddingLeft: 2,
+        borderColor: 'lightgray',
+        borderWidth: 1,
+        fontSize: 20,
+        height: 70
+    },
+
+
+    container1: {
+        flex: 1,
+        flexDirection: 'column',
+        padding: 5,
+        backgroundColor: '#d47024'
+
+    },
+    col1: {
+        padding: 1,
+        flex: 0
+    },
+    col2: {
+        padding: 1,
+        flex: 83
+    },
+    col3: {
+        padding: 1,
+        flex: 10
+    },
+
+
+    row_1: {
+        height: 25,
+        flexDirection: 'row'
+    },
+    row_11: {
+        padding: 5,
+        flex: 1,
+        height: 25
+    },
+
+
+    textRow2: {
+        width: 200,
+        flex: 2,
+    },
+    textRow1: {
+        flex: 1,
+    },
+
     TI: {
+        width: 150,
         padding: 10,
         borderColor: 'black',
-        borderWidth: 1
+        borderWidth: 1,
+        fontSize: 20
     },
-    padTop: {
-        padding: 15,
-        flexDirection: "row",
-    },
+
 
     textGlobal: {
         fontWeight: 'bold',
-        fontSize: 18
+        fontSize: 20,
+        color:'#ffffff'
     },
     buttonStyle: {
         justifyContent: 'center', //Centered vertically
         alignItems: 'center', // Centered horizontally
         height: 50,
-        backgroundColor: 'lightgray',
+        backgroundColor: '#d47024',
         borderRadius: 15,
-        borderWidth: 1,
-        borderColor: '#007aff',
+        borderWidth: 2,
+        borderColor: '#ffffff',
         marginLeft: 5,
         marginRight: 5,
         overflow: 'hidden'
     }
 });
-
 
 export default BoughtList;

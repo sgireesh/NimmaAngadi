@@ -12,11 +12,11 @@ class PendingOrders extends React.Component {
             items: {},
             singleitem: "",
             storename: "",
-            setflag1:false,
-            setflag2:false,
+            setflag1: false,
+            setflag2: false,
+            appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2'
         };
         this.getAsyncData();
-
         this.props.navigation.setOptions({
             headerLeft: () => (
                 <TouchableOpacity
@@ -27,7 +27,39 @@ class PendingOrders extends React.Component {
 
             ),
         });
+    }
 
+    fbLogin() {
+        firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
+            .then(function (result) {
+                console.log("31: " + result.user.uid);
+            }).catch(function (error) {
+                console.log("33: " + error);
+            });
+    }
+
+    fbAuthenticate() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
+            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
+            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
+            projectId: "nimmaangadi-bd2fc",
+            storageBucket: "nimmaangadi-bd2fc.appspot.com",
+            messagingSenderId: "889051007214",
+            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        this.fbLogin();
+
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                console.log("53: found user" + user.uid);
+            } else {
+                this.fbLogin();
+            }
+        });
     }
 
     getAsyncData() {
@@ -48,7 +80,7 @@ class PendingOrders extends React.Component {
                         data={Object.keys(this.state.items)}
                         renderItem={({ item, index }) => (
                             <ListItem
-                                title={this.state.items[item].groupname.concat("    Phone: ", this.state.items[item].groupphone, "     ",this.state.items[item].storestatus )}
+                                title={this.state.items[item].groupname.concat("    Phone: ", this.state.items[item].groupphone, "     ", this.state.items[item].storestatus)}
                                 onSwipeFromLeft={() => { this.notifyCustomer(item, this.state.items[item]) }}
                                 onRightPress={() => { this.startFulfill(item, this.state.items[item].groupname) }}
                                 textlabelright="start"
@@ -66,24 +98,11 @@ class PendingOrders extends React.Component {
     notifyCustomer = (uid, additem) => {
         /* NOT IMPLEMENTED*/
         var listname = this.state.storename;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
 
-        var ref = firebase.database().ref("boughtlist/" + listname + "/list");
+        var ref = firebase.database().ref(this.state.appuid + "/boughtlist/" + listname + "/list");
         var p = ref.push();
         p.set(additem);
-        var ref2 = firebase.database().ref("shoppinglist/" + listname);
+        var ref2 = firebase.database().ref(this.state.appuid + "/shoppinglist/" + listname);
         console.log("In getData, looking for ", ref2);
 
         ref2.on('value', function (snapshot) {
@@ -96,28 +115,14 @@ class PendingOrders extends React.Component {
         });
 
         this.fbDelete(uid, additem.title);
-        console.log("end getData, looking for ", ref2);
     }
 
     fbDelete = (uid, title) => {
         var listname = this.state.storename;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
 
-        var ref = firebase.database().ref("shoppinglist/" + listname + "/list");
+        var ref = firebase.database().ref(this.state.appuid + "/shoppinglist/" + listname + "/list");
         ref.child(uid).remove();
-        var ref2 = firebase.database().ref("shoppinglist/" + listname);
+        var ref2 = firebase.database().ref(this.state.appuid + "/shoppinglist/" + listname);
 
         ref2.on('value', function (snapshot) {
             const newitem1 = snapshot.val().list;
@@ -129,25 +134,10 @@ class PendingOrders extends React.Component {
     }
 
     fbLoadPendingOrders = () => {
-        console.log("140: store name" + this.state.storename);
         var listname = this.state.storename;
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
-            authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
-            databaseURL: "https://nimmaangadi-bd2fc.firebaseio.com",
-            projectId: "nimmaangadi-bd2fc",
-            storageBucket: "nimmaangadi-bd2fc.appspot.com",
-            messagingSenderId: "889051007214",
-            appId: "1:889051007214:web:90f9b38daf60f3791ecbff"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
         listname = listname.replace(/\s+/g, '').toLowerCase();
 
-        var ref = firebase.database().ref("pendingorders/" + listname);
+        var ref = firebase.database().ref(this.state.appuid + "/pendingorders/" + listname);
         ref.on('value', function (snapshot) {
             if (snapshot.val() != null) {
                 console.log("153: " + snapshot);
@@ -160,11 +150,9 @@ class PendingOrders extends React.Component {
         });
     }
 
-    
     startFulfill = async (uid, groupname) => {
         console.log("165 :" + uid);
         try {
-            //groupname = groupname.replace(/\s+/g, '').toLowerCase();
             await AsyncStorage.setItem('groupname', uid, (err) => {
                 if (!err) {
                     this.setState({ setflag1: true });
@@ -176,9 +164,6 @@ class PendingOrders extends React.Component {
                     this.setState({ setflag2: true });
                 }
             });
-            console.log("165: " + this.state.setflag1);
-            console.log("166: " + this.state.setflag2);
-
             if (this.state.setflag1 && this.state.setflag2) {
                 this.props.navigation.navigate('ShoppingList');
             }
@@ -186,19 +171,6 @@ class PendingOrders extends React.Component {
             console.log("Error ", e);
         }
     }
-/*
-    startFulfill = (uid, groupname) => {
-        AsyncStorage.setItem('groupname', groupname).then(
-            () => {
-                AsyncStorage.setItem('from', 'group').then(
-                    () => {
-                      this.props.navigation.navigate('ShoppingList');
-                    }
-                  );
-            }
-        );
-    }
-    */
 }
 
 const styles = StyleSheet.create({
