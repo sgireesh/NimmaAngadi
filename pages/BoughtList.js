@@ -106,10 +106,19 @@ class BoughtList extends React.Component {
         var ref = firebase.database().ref(path);
         ref.update(item);
 
-        //ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname + "/list");
-        //ref.child(uid).remove();
-        //console.log("added: " + Object.keys(item));
-        alert("Added: " + item.title);
+        ref = firebase.database().ref(this.state.appuid + "boughtlist/" + groupname);
+        ref.once('value', function (snapshot) {
+            if (snapshot.val() != null) {
+                console.log("112: loading data");
+                const newitem1 = snapshot.val().list;
+                this.setState({ items: newitem1 })                
+            } else {
+                this.setState({ items: {} });
+            }
+        }.bind(this), function () {
+            console.info("API initialization failed");
+        });
+        
     }
     fbDelete = (uid, title) => {
         console.log("89: " + uid);

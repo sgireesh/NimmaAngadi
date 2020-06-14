@@ -260,8 +260,7 @@ class ShoppingList extends React.Component {
     fbDelete = (uid, title) => {
         var groupname = this.state.groupname;
         var listname = this.state.listname;
-
-        var ref = firebase.database().ref("shoppinglist/" + groupname + "/lists/" + listname + "/list");
+        var ref = firebase.database().ref(this.state.appuid + "/shoppinglist/" + groupname + "/lists/" + listname + "/list");
         ref.child(uid).remove();
         ref.off();
     }
@@ -269,9 +268,6 @@ class ShoppingList extends React.Component {
     fbLoadList = () => {
         var groupname = this.state.groupname;
         var listname = this.state.listname;
-
-        console.log("298 : " + groupname);
-        console.log("299 : " + listname);
 
         //get group phone
         var path = this.state.appuid + "/groups/" + groupname;
