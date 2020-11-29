@@ -147,7 +147,9 @@ class AddListToStore extends Component {
             //clear active list
             path = this.state.appuid + "/shoppinglist/".concat(grouppath, "/lists/active");
             ref = firebase.database().ref(path);
-            ref.remove();
+            if(ref != undefined) {
+                ref.remove();
+            }
         });
         this.saveData();
     }
