@@ -1,0 +1,12 @@
+{
+  "name": "Angadi",
+  "displayName": "Angadi",
+  "expo": {
+    "name": "Angadi",
+    "slug": "Angadi",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
