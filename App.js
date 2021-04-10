@@ -12,6 +12,7 @@ import AddListToStore from './pages/AddListToStore';
 import NotifyCustomer from './pages/NotifyCustomer';
 import AllLists from './pages/AllLists';
 import * as firebase from 'firebase';
+import { LogBox } from 'react-native';
 
 class App extends Component {
   constructor(props) {
@@ -23,17 +24,20 @@ class App extends Component {
       setflag1: false,
       loadinprogress: true
     };
+    LogBox.ignoreAllLogs();
+
     Stack = createStackNavigator();
     this.getData();
   }
 
-  fbLogin = () => {
+  fbLogin = (_callback) => {
     firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
       .then(function (result) {
         console.log("31: " + result.user.uid);
       }).catch(function (error) {
         console.log("33: " + error);
       });
+    _callback();
   }
 
   fbAuthenticate = () => {
@@ -49,15 +53,20 @@ class App extends Component {
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
-    this.fbLogin();
+    this.fbLogin(function () {
+      console.log('logged to Firebase!');
+    });
 
     firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
-        console.log("53: found user" + user.uid);
+        console.log("53: found user: " + user.uid);
       } else {
-        this.fbLogin();
+        this.fbLogin(function () {
+          console.log('logged to Firebase!');
+        });
       }
     });
+    this.setState({ loadinprogress: false });
   }
 
   clearAsyncData() {
@@ -158,11 +167,11 @@ class App extends Component {
           this.setState({ isFamilyLoggedIn: false });
         }
       }).then(res => {
-        this.setState({loadinprogress : false})
+        this.setState({ loadinprogress: true })
       });
     } catch (e) {
       console.log("Error ", e);
-    }
+    } 
 
     try {
       await AsyncStorage.getItem('storename', (err, value) => {
@@ -174,7 +183,9 @@ class App extends Component {
         } else {
           this.setState({ isStoreLoggedIn: false });
         }
-      })
+      }).then(res => {
+        this.setState({ loadinprogress: false })
+      });
     } catch (e) {
       console.log("Error ", e);
     }
@@ -213,22 +224,16 @@ class App extends Component {
   componentWillUnmount() {
   }
 
-  //saveData = async ({ navigation }) => {
-  saveData ({navigation}){
-      try {
-//       AsyncStorage.setItem('from', 'group', (err) => {
-//        if (!err) {
-  AsyncStorage.setItem('from', 'group');
-         this.setState({ setflag1: true });
- //       }
-  //    });
-      console.trace("102: " + this.state.setflag1);
+  saveData = async ({ navigation }) => {
+    await AsyncStorage.setItem('from', 'group').then(() => {
+      this.setState({ loadinprogress: false })
+      this.setState({ setflag1: true });
+      console.log("102: " + this.state.setflag1);
 
-      if (this.state.setflag1) {
-        navigation.navigate('AllLists');
-      }
-    } catch (e) {
-      console.log("Error ", e);
+    });
+
+    if (this.state.setflag1) {
+      navigation.navigate('AllLists');
     }
   }
 
@@ -340,20 +345,12 @@ class App extends Component {
     );
   }
 
-  /*
-          {(this.state.isFamilyLoggedIn === false)
-            // If not logged in, the user will be shown this route
-            ? <Stack.Screen name="AddNewFamily" component={this.AddNewFamilyScreen} />
-            // When logged in, the user will be shown this route
-            : <Stack.Screen name="Home" component={this.HomeScreen} options={{title: this.state.familyname}}/>
-          }
-              */
 
   render = () => {
     if (this.state.loadinprogress) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
-          <ActivityIndicator color={'#111'} />
+          <ActivityIndicator color={'#FF0000'} />
         </View>
       )
     }

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import Icon from 'react-native-vector-icons/Feather';
 import moment from 'moment';
+import { LogBox } from 'react-native';
 
 class AllLists extends React.Component {
     constructor(props) {
@@ -20,8 +21,9 @@ class AllLists extends React.Component {
             lagelright: "",
             appuid: 'dh7OXmOVKNeDNVwR4XKyc70097I2'
         };
+        LogBox.ignoreLogs(['Warning: ...']);
 
-        this.getAsyncData();
+        //        this.getAsyncData();
 
         this.props.navigation.setOptions({
             headerLeft: () => (
@@ -35,16 +37,18 @@ class AllLists extends React.Component {
         });
     }
 
-    fbLogin() {
+    fbLogin = (_callback) => {
         firebase.auth().signInWithEmailAndPassword('gireesh.subramanya@gmail.com', 'alskdj1')
             .then(function (result) {
                 console.log("31: " + result.user.uid);
             }).catch(function (error) {
                 console.log("33: " + error);
             });
+        _callback();
     }
 
-    fbAuthenticate() {
+
+    fbAuthenticate = () => {
         const firebaseConfig = {
             apiKey: "AIzaSyBSe0Ikn2LsivJUpY4dOmb4PnPlX4n4q9Y",
             authDomain: "nimmaangadi-bd2fc.firebaseapp.com",
@@ -57,18 +61,21 @@ class AllLists extends React.Component {
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        this.fbLogin();
-
+        this.fbLogin(function () {
+            console.log('logged to Firebase!');
+        });
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
                 console.log("53: found user" + user.uid);
             } else {
-                this.fbLogin();
+                this.fbLogin(function () {
+                    console.log('logged to Firebase!');
+                });
             }
         });
     }
 
-    getAsyncData() {
+    getAsyncData = () => {
         AsyncStorage.getItem("from").then((value) => {
             console.log("Allist: 37: from: " + value);
             this.setState({ "from": value });
@@ -83,10 +90,12 @@ class AllLists extends React.Component {
         AsyncStorage.getItem("groupname").then((value) => {
             console.log("alllist: 61: groupname: " + value);
             this.setState({ "groupname": value });
-        }).then(res => { this.fbLoadList() });
+        }).then(() => { this.fbLoadList() });
     }
 
     componentDidMount() {
+        this.getAsyncData();
+
         if (!firebase.apps.length) {
             this.fbAuthenticate();
         }
@@ -139,7 +148,7 @@ class AllLists extends React.Component {
                     </TouchableOpacity>
                 </View>
                 <View >
-                    <View> 
+                    <View>
                         <Text style={styles.textGlobal}>Status below on lists you sent to Stores</Text>
                     </View>
                 </View>
