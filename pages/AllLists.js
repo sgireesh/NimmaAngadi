@@ -25,16 +25,7 @@ class AllLists extends React.Component {
 
         //        this.getAsyncData();
 
-        this.props.navigation.setOptions({
-            headerLeft: () => (
-                <TouchableOpacity
-                    onPress={() => this.props.navigation.navigate('Home')}
-                >
-                    <Icon style={{ paddingLeft: 10 }} name="arrow-left" size={26} color="black" />
-                </TouchableOpacity>
-
-            ),
-        });
+        
     }
 
     fbLogin = (_callback) => {
@@ -95,6 +86,16 @@ class AllLists extends React.Component {
 
     componentDidMount() {
         this.getAsyncData();
+        this.props.navigation.setOptions({
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('Home')}
+                >
+                    <Icon style={{ paddingLeft: 10 }} name="arrow-left" size={26} color="black" />
+                </TouchableOpacity>
+
+            ),
+        });
 
         if (!firebase.apps.length) {
             this.fbAuthenticate();
